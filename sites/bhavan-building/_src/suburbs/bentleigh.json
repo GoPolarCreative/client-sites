@@ -1,0 +1,65 @@
+{
+  "suburb": "Bentleigh",
+  "postcode": "3204",
+  "council": "Glen Eira City Council",
+  "region": "Glen Eira and Kingston",
+  "distance_km": 3,
+  "drive_min": 8,
+  "neighbours": [
+    "Bentleigh East",
+    "McKinnon",
+    "Ormond",
+    "Brighton East",
+    "Moorabbin",
+    "Highett"
+  ],
+  "title": "Builder Bentleigh | Renovations, Extensions & Rebuilds | Bhavan Building",
+  "desc": "Registered builder in Bentleigh, 3 km from our Bentleigh East base. Kitchen and bathroom renovations, extensions and knock-down rebuilds. Free quotes.",
+  "h1": [
+    "Builder in Bentleigh,",
+    "a few streets from home"
+  ],
+  "lead": "We are based in Bentleigh East, about eight minutes from Centre Road, so Bentleigh jobs get the builder on site, not stuck in traffic. Bathroom updates in period homes, rear extensions and knock-down rebuilds.",
+  "sections": [
+    {
+      "h": "The houses we work on",
+      "p": "Bentleigh is mostly interwar and post-war houses: Californian bungalows, weatherboards and clinker brick on generous blocks. Many still have their original kitchen and bathroom layouts, which is why a renovation here often means opening up the back of the house rather than just replacing cabinets."
+    },
+    {
+      "h": "Renovate, extend or rebuild",
+      "p": "On a Bentleigh block the question is usually whether to keep the front of the house and extend at the rear, or knock down and rebuild. We walk you through both with real costs and timeframes before you commit, and we will tell you if a renovation is the better value."
+    },
+    {
+      "h": "Council and planning",
+      "p": "Bentleigh is in the City of Glen Eira. Some streets carry heritage or neighbourhood character controls that affect what can change at the front of a house. We check the overlays on your property early and work with your designer and surveyor so the permit side does not hold up the build."
+    }
+  ],
+  "focus_services": [
+    "home-extensions-rebuilds-melbourne",
+    "kitchen-renovations-melbourne",
+    "bathroom-renovations-melbourne"
+  ],
+  "photos": [
+    "wf1",
+    "vanity1",
+    "laundry1"
+  ],
+  "faq": [
+    [
+      "Do you build in Bentleigh?",
+      "Yes. Bentleigh is next door to our Bentleigh East base. We take on renovations, extensions and knock-down rebuilds there."
+    ],
+    [
+      "Do I need a planning permit to extend in Bentleigh?",
+      "It depends on your property's zoning and any heritage or neighbourhood character overlay. Many single-storey rear extensions need only a building permit, but we check your overlays with Glen Eira City Council before quoting."
+    ],
+    [
+      "Should I renovate or knock down and rebuild?",
+      "It depends on the condition of the house, what you want to add and your budget. We price both options so you can compare them properly before deciding."
+    ]
+  ],
+  "published": "2026-11-18",
+  "sources": [
+    "Built from Claude's general knowledge of Bentleigh for the pipeline test. Monthly runs research and list sources here."
+  ]
+}

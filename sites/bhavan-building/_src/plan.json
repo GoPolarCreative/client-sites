@@ -1,0 +1,52 @@
+{
+  "pattern": "/builder-{slug}/",
+  "base": "Bentleigh East",
+  "page_type": "Builder in <suburb>: renovations, extensions and rebuilds",
+  "rules": "Nearest and highest-value suburbs first. Only suburbs the client listed. One page per month. Each page needs local detail a competitor could not copy-paste: council and planning context, housing stock, neighbouring suburbs, distance from base, and the services most asked for there.",
+  "queue": [
+    "Brighton",
+    "Caulfield",
+    "Malvern East",
+    "Hampton",
+    "Glen Waverley",
+    "Camberwell",
+    "Mentone",
+    "Sandringham",
+    "Ormond",
+    "Oakleigh",
+    "Mount Waverley",
+    "Malvern",
+    "Kew",
+    "Beaumaris",
+    "Black Rock",
+    "Balwyn",
+    "Armadale",
+    "Parkdale",
+    "Mordialloc",
+    "Ashburton",
+    "Hawthorn",
+    "Chadstone",
+    "Ashwood",
+    "Canterbury",
+    "Toorak",
+    "Aspendale",
+    "Edithvale",
+    "Bonbeach",
+    "Hawthorn East",
+    "Balwyn North",
+    "Blackburn",
+    "Forest Hill",
+    "Vermont South",
+    "South Yarra",
+    "St Kilda",
+    "Albert Park",
+    "Middle Park"
+  ],
+  "done": [
+    {
+      "suburb": "Bentleigh",
+      "path": "/builder-bentleigh/",
+      "published": "2026-11-18"
+    }
+  ]
+}

@@ -270,8 +270,38 @@ for x in SERVICES:
     s.page(path, title=x["title"], description=x["desc"], body=body, faq=x["faq"], crumbs=[(x["name"], path)],
            extra_graph=[s.service_node(path, " ".join(x["h1"]).replace(",", ""), x["desc"])])
 
+SUBURB_PAGES, SUBURB_LINKS = s.suburbs()
+
+
+def sub_li(name):
+    return f'<li><a href="{SUBURB_LINKS[name]}">{esc(name)}</a></li>' if name in SUBURB_LINKS else f"<li>{esc(name)}</li>"
+
+
+for sp in SUBURB_PAGES:
+    path, sub = sp["path"], sp["suburb"]
+    facts = [f"Postcode {sp['postcode']}", sp["council"], f"{sp['distance_km']} km from our Bentleigh East base, about {sp['drive_min']} minutes"]
+    blocks = "".join(f'<div class="rv sv-b sv-b{i}"><h2>{esc(x["h"])}</h2><p>{esc(x["p"])}</p></div>' for i, x in enumerate(sp["sections"][:3]))
+    near = "".join(f'<li><a href="{SUBURB_LINKS[n]}">Builder in {esc(n)}</a></li>' for n in sp["neighbours"] if n in SUBURB_LINKS)
+    focus = [x for x in SERVICES if x["slug"] in sp.get("focus_services", [])] or SERVICES
+    svc = "".join(f'<li><a href="/{x["slug"]}/">{x["name"]}</a></li>' for x in focus)
+    body = f"""{inner_hero(*sp['h1'], sp['lead'], sp['photos'][:2], [('Service areas', '/service-areas/'), (sub, path)])}
+<section class="sv" aria-label="Building in {esc(sub)}">
+<div class="rv sv-inc"><h2>{esc(sub)} at a glance</h2><ul>{''.join(f'<li>{esc(f)}</li>' for f in facts)}<li>Next door: {esc(', '.join(sp['neighbours']))}</li></ul></div>
+<figure class="rv sv-pic">{s.img(sp['photos'][2], sizes='(min-width: 900px) 30vw, 72vw')}</figure>
+{blocks}
+<div class="rv sv-more"><h2>What we build in {esc(sub)}</h2><ul>{svc}{near}<li><a href="/service-areas/">All suburbs</a></li></ul></div>
+</section>
+{faq_section(sp['faq'], tall=sp['photos'][0], square=sp['photos'][1])}
+{contact_band()}
+{enquiry('Contact Page Enquiry')}"""
+    node = {"@type": "Service", "@id": f"{s.base}{path}#service", "name": f"Builder in {sub}", "description": sp["desc"],
+            "provider": {"@id": f"{s.base}/#business"}, "url": f"{s.base}{path}",
+            "areaServed": {"@type": "City", "name": sub, "address": {"@type": "PostalAddress", "postalCode": sp["postcode"], "addressRegion": "VIC", "addressCountry": "AU"}}}
+    s.page(path, title=sp["title"], description=sp["desc"], body=body, faq=sp["faq"],
+           crumbs=[("Service areas", "/service-areas/"), (sub, path)], extra_graph=[node])
+
 rl = list(d["regions"].items())
-regions = "".join(f'<div class="rv rg"><h2>{esc(r)}</h2><ul>' + "".join(f"<li>{esc(sub)}</li>" for sub in subs) + "</ul></div>" for r, subs in rl)
+regions = "".join(f'<div class="rv rg"><h2>{esc(r)}</h2><ul>' + "".join(sub_li(sub) for sub in subs) + "</ul></div>" for r, subs in rl)
 areas_body = f"""{inner_hero('Building in Bentleigh East', 'and the suburbs around it', 'We are based in Bentleigh East and build across the south-east and inner-east suburbs, close enough that the builder is on site, not stuck in traffic.', ['vanity1', 'laundry2'], [('Service areas', '/service-areas/')])}
 <!-- CONFIRM WITH CLIENT BEFORE LAUNCH: suburbs grouped into regions from the form list. -->
 <section class="areas" aria-label="Suburbs">{regions}

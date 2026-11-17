@@ -1,7 +1,7 @@
 {
   "questionnaire_sheet": "1M4qiDXU3D5nlttC0XY7vhOCSOOhMO5kZPpfAkd28y3Y",
   "questionnaire_title": "Tradie Questionnaire V2 (Responses)",
-  "note": "One entry per built site. The daily run builds any V2 response whose Timestamp + Business name is not here.",
+  "note": "One entry per built site. The daily run builds any V2 response whose Timestamp + Business name is not here. monthly_pages: true adds one suburb page on the 1st of each month (see _kit/MONTHLY.md).",
   "builds": [
     {
       "slug": "metrowide-plumbing",
@@ -9,7 +9,8 @@
       "source": "old Trade Websites sheet row 47",
       "timestamp": "7/10/2026 10:55:05",
       "built": "2026-11-17",
-      "status": "test build for skill comparison"
+      "status": "test build for skill comparison",
+      "monthly_pages": false
     },
     {
       "slug": "bhavan-building",
@@ -17,7 +18,8 @@
       "source": "old Trade Websites sheet row 43",
       "timestamp": "7/1/2026 12:46:23",
       "built": "2026-11-17",
-      "status": "test build for skill comparison"
+      "status": "test build for skill comparison",
+      "monthly_pages": true
     }
   ]
 }

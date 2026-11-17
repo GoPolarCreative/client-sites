@@ -3,7 +3,7 @@
 - Source: Trade Websites sheet row 43 (submitted 7/1/2026)
 - Domain: https://www.bhavanbuilding.com.au (canonical and schema point here)
 - Preview: https://bhavan-building.vercel.app
-- Built: 2026-11-17 by Claude with the go-polar-site-build skill
+- Built: 2026-11-18 by Claude with the go-polar-site-build skill
 - Phone on site: 0426 045 004 / Form key: client key
 
 ## Design
@@ -24,6 +24,7 @@
 - /bathroom-renovations-melbourne/
 - /laundry-renovations-melbourne/
 - /home-extensions-rebuilds-melbourne/
+- /builder-bentleigh/
 - /service-areas/
 - /projects/
 - /about/

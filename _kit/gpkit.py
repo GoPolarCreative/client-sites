@@ -81,6 +81,18 @@ class Site:
         self.flags: list[str] = list(d.get("flags", []))
         self.today = datetime.date.today().isoformat()
 
+    # ------------------------------------------------------------------ monthly suburb pages
+    def suburbs(self):
+        """Published suburb pages: one JSON per suburb in _src/suburbs/, written by the monthly run.
+        Returns (pages, links) where links maps suburb name to its URL path."""
+        folder = self.src / "suburbs"
+        pages = [json.loads(f.read_text()) for f in sorted(folder.glob("*.json"))] if folder.exists() else []
+        plan = json.loads((self.src / "plan.json").read_text()) if (self.src / "plan.json").exists() else {}
+        pattern = plan.get("pattern", "/{slug}/")
+        for p in pages:
+            p["path"] = pattern.format(slug=slugify(p["suburb"]))
+        return pages, {p["suburb"]: p["path"] for p in pages}
+
     # ------------------------------------------------------------------ notes
     def flag(self, text: str):
         if text not in self.flags:
@@ -368,6 +380,18 @@ class Site:
         if small:
             dr.text((64, 630 - 72), small, font=ft, fill=ink)
         im.convert("RGB").save(self.assets / "og-image.jpg", "JPEG", quality=84, optimize=True, progressive=True)
+
+    # ------------------------------------------------------------------ monthly suburb pages
+    def suburbs(self):
+        """Published suburb pages: one JSON per suburb in _src/suburbs/, written by the monthly run.
+        Returns (pages, links) where links maps suburb name to its URL path."""
+        folder = self.src / "suburbs"
+        pages = [json.loads(f.read_text()) for f in sorted(folder.glob("*.json"))] if folder.exists() else []
+        plan = json.loads((self.src / "plan.json").read_text()) if (self.src / "plan.json").exists() else {}
+        pattern = plan.get("pattern", "/{slug}/")
+        for p in pages:
+            p["path"] = pattern.format(slug=slugify(p["suburb"]))
+        return pages, {p["suburb"]: p["path"] for p in pages}
 
     # ------------------------------------------------------------------ notes
     def notes(self, *, direction, idea, live, type_, palette, redraws=(), decisions=()):
