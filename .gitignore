@@ -1,0 +1,4 @@
+sites/*/_src/shots/
+sites/*/_src/verify.json
+_kit/.cache/
+__pycache__/

@@ -28,4 +28,22 @@ Push that branch to a new repo and transfer it to the client.
 
 ## Folder contents
 
-Each site folder holds the full source of that site (Astro or static HTML), its images, and a `BUILD-NOTES.md` recording the questionnaire answers it was built from and any edits made since.
+```
+_kit/                  shared mechanics: gpkit.py (shell, SEO, schema, images, fonts, og-image, favicons),
+                       gp.js / gp.css (nav, reveals, lightbox, Web3Forms), verify.py (checks + screenshots)
+builds.json            registry of built sites and the questionnaire rows they came from
+sites/<slug>/          the deployed static site (index.html per page, assets/, sitemap, robots, vercel.json)
+sites/<slug>/_src/     source, never deployed: site.json (client data), build.py (pages and copy),
+                       site.css, site.js, img/ (client photos), flags.json
+sites/<slug>/BUILD-NOTES.md   direction, idea, pages, photos and the flags to confirm with the client
+```
+
+The kit holds mechanics only. Every site writes its own layout, CSS and copy, so no two sites share a composition.
+
+Rebuild and check one site:
+
+```
+python3 sites/<slug>/_src/build.py && python3 _kit/verify.py sites/<slug>
+```
+
+Needs Python 3 with Pillow, fonttools, brotli, cairosvg and Playwright, Node 22 (for fonts via npm), and Chrome.

@@ -1,0 +1,12 @@
+[
+  "Service area was answered as 'All areas' with no city. Melbourne assumed (CONFIRM). Regions and suburbs on the areas page are a starting list for Dan to correct.",
+  "No plumbing registration or licence number supplied. Research says trade sites convert better with it shown up front. CLIENT TO SUPPLY: VBA registration number.",
+  "No insurance details supplied, so the site makes no insurance claim. CLIENT TO SUPPLY if covered.",
+  "No reviews yet ('None as of yet'), so there is no testimonials section and no review schema. Add Google reviews when they come in.",
+  "No business hours supplied. The site says emergency and same-day work (form answer Yes) but does not claim 24/7. CLIENT TO CONFIRM hours.",
+  "No street address. Built as a service-area business with no address shown. Google Business Profile should match.",
+  "Client chose to host elsewhere ('I'll set myself up and pay for hosting elsewhere'). Preview is on Vercel; confirm hosting before going live.",
+  "All seven job photos are bathrooms. No photos of new build rough-ins, commercial work or maintenance callouts, so those pages reuse bathroom photos. CLIENT TO SUPPLY site photos.",
+  "Logo arrived as a phone screenshot of the artwork. Cropped and made transparent; it holds up at header size but a vector original would be better.",
+  "Photo bath-laundry-combo had a screen scrollbar on its right edge; trimmed 44px."
+]

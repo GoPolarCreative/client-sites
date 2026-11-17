@@ -1,0 +1,35 @@
+/* Go Polar kit base. Functional only, no look of its own: every colour comes from the site's
+   tokens (--bg, --ink, --accent, --accent-ink, --surface, --scrim). site.css loads after this. */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 96px; }
+body { margin: 0; }
+img, video, svg { display: block; max-width: 100%; height: auto; }
+figure { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+.gp-skip { position: absolute; left: 8px; top: 8px; z-index: 100; padding: 12px 16px; background: var(--ink); color: var(--bg); clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; white-space: nowrap; }
+.gp-skip:focus { clip-path: none; width: auto; height: auto; }
+.gp-sentinel { position: absolute; top: 0; left: 0; width: 1px; height: 8px; pointer-events: none; }
+.gp-hp { position: absolute !important; left: -9999px !important; width: 1px; height: 1px; opacity: 0; }
+.gp-status:empty { display: none; }
+
+/* Reveal: hidden only when JS runs, so content never depends on script */
+.js .rv { opacity: 0; transform: translateY(18px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: calc(var(--i, 0) * 70ms); }
+.js .rv.in { opacity: 1; transform: none; }
+
+/* Lightbox */
+.gp-lb { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--scrim); color: var(--ink-on-scrim, var(--bg)); }
+.gp-lb::backdrop { background: var(--scrim); }
+.gp-lb figure { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 64px 16px 72px; }
+.gp-lb img { max-height: 100%; width: auto; max-width: 100%; object-fit: contain; }
+.gp-lb figcaption { font-size: .9375rem; text-align: center; }
+.gp-lb button { position: absolute; min-width: 48px; min-height: 48px; padding: 0 16px; border: 0; background: var(--bg); color: var(--ink); cursor: pointer; }
+.gp-lb-x { top: 12px; right: 12px; }
+.gp-lb-p { left: 12px; bottom: 12px; }
+.gp-lb-n { right: 12px; bottom: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .js .rv { opacity: 1; transform: none; }
+}
