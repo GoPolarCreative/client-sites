@@ -1,0 +1,66 @@
+name: Deploy client sites
+
+# Each folder in sites/ is one client website and one Vercel project.
+# A push deploys only the folders it changed. Run it by hand to redeploy one site.
+
+on:
+  push:
+    branches: [main]
+    paths: ['sites/**']
+  workflow_dispatch:
+    inputs:
+      site:
+        description: 'Folder name in sites/ to redeploy (e.g. turquoise-plumbing)'
+        required: true
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Work out which sites changed
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SITES="${{ github.event.inputs.site }}"
+          elif git rev-parse HEAD^ >/dev/null 2>&1; then
+            SITES=$(git diff --name-only HEAD^ HEAD -- sites/ | cut -d/ -f2 | sort -u)
+          else
+            SITES=$(ls sites)
+          fi
+          # Only folders that still exist (a deleted site is not redeployed)
+          KEEP=""
+          for s in $SITES; do [ -d "sites/$s" ] && KEEP="$KEEP $s"; done
+          echo "sites=$(echo $KEEP | xargs)" >> "$GITHUB_OUTPUT"
+          echo "Sites to deploy: $KEEP"
+
+      - name: Deploy to Vercel
+        if: steps.changed.outputs.sites != ''
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then echo "VERCEL_TOKEN secret is missing"; exit 1; fi
+          npm i -g vercel@latest >/dev/null
+          echo "## Deployments" >> "$GITHUB_STEP_SUMMARY"
+          for SITE in ${{ steps.changed.outputs.sites }}; do
+            echo "::group::$SITE"
+            cd "sites/$SITE"
+            # Links to the Vercel project named after the folder, creating it on first deploy
+            vercel link --yes --project "$SITE" --token "$VERCEL_TOKEN"
+            URL=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN")
+            echo "$SITE: $URL"
+            echo "- **$SITE**: $URL" >> "$GITHUB_STEP_SUMMARY"
+            cd - >/dev/null
+            echo "::endgroup::"
+          done
