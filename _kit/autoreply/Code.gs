@@ -92,9 +92,14 @@ function out_(msg) {
   return ContentService.createTextOutput(msg);
 }
 
-/** Run once from the editor to approve permissions and send yourself a sample. */
+/** Run from the editor to approve permissions and send yourself a sample reply. Uses a test-only config. */
 function testToMe() {
   var me = Session.getEffectiveUser().getEmail();
-  var res = doPost({ postData: { contents: JSON.stringify({ site: 'metrowide-plumbing', name: 'Chris Test', email: me }) } });
-  Logger.log(res.getContent());
+  var cache = CacheService.getScriptCache();
+  var real = cache.get('config');
+  cache.put('config', JSON.stringify({ __test__: { enabled: true, business: 'Go Polar Test Plumbing', owner: 'Chris',
+    on_job: 'on the tools', reply_to: me, phone: '0435 031 044', tel: '+61435031044', website: 'https://www.itscold.com.au' } }), 30);
+  var res = doPost({ postData: { contents: JSON.stringify({ site: '__test__', name: 'Chris Test', email: me }) } });
+  if (real) cache.put('config', real, 600); else cache.remove('config');
+  Logger.log(res.getContent() + ' from ' + me);
 }

@@ -33,8 +33,8 @@ KIT = Path(__file__).resolve().parent
 CREDIT_TEXT = "Website by Go Polar Creative"
 CREDIT = f'<a href="https://www.itscold.com.au" target="_blank" rel="noopener">{CREDIT_TEXT}</a>'
 PLACEHOLDER_KEY = "c898e546-5c35-4a3e-ba3a-fd5e7cae5100"
-# Go Polar auto-reply web app (Apps Script on the Go Polar Gmail). See _kit/autoreply/.
-AUTOREPLY_URL = "https://script.google.com/macros/s/AKfycbyAwNEo6zmuO5rTmXIVcKEVF4gCRvXeAV_RTDvCu_yGAZQlEdm4a4sdYEAP3M_EFbXMLA/exec"
+# Go Polar auto-reply web app, owned by gopolarcreative@gmail.com so it always sends from that address. See _kit/autoreply/.
+AUTOREPLY_URL = "https://script.google.com/macros/s/AKfycbzENUG-aqKKcfkw9jBtVxzP8inmO067luI2qgETcwbr9pgeY3Qf9jBX8AGKWfmbiowX/exec"
 UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
 STATES = {"VIC": "Victoria", "NSW": "New South Wales", "QLD": "Queensland", "WA": "Western Australia",
           "SA": "South Australia", "TAS": "Tasmania", "ACT": "Australian Capital Territory", "NT": "Northern Territory"}
