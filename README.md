@@ -47,3 +47,7 @@ python3 sites/<slug>/_src/build.py && python3 _kit/verify.py sites/<slug>
 ```
 
 Needs Python 3 with Pillow, fonttools, brotli, cairosvg and Playwright, Node 22 (for fonts via npm), and Chrome.
+
+## Instant enquiry auto-reply
+
+`_kit/autoreply/Code.gs` runs as a Google Apps Script web app ("Go Polar enquiry auto-reply", on chrismoule96@gmail.com). After Web3Forms accepts an enquiry, the site posts the customer's name and email to it, and it replies instantly in the client's business name with Reply-To set to the client. Turn it on per site with `"autoreply": {"enabled": true, "on_job": "on the tools"}` in `_src/site.json`; the build writes `autoreply.json`, which the script reads. Limit: about 100 auto-replies a day across all sites (Gmail quota).
