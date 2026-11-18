@@ -3,7 +3,7 @@
 - Source: Trade Websites sheet row 47 (submitted 7/10/2026)
 - Domain: https://www.metrowideplumbing.com.au (canonical and schema point here)
 - Preview: https://metrowide-plumbing.vercel.app
-- Built: 2026-11-17 by Claude with the go-polar-site-build skill
+- Built: 2026-11-18 by Claude with the go-polar-site-build skill
 - Phone on site: 0423 017 489 / Form key: client key
 
 ## Design

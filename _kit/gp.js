@@ -96,6 +96,11 @@
         .then(function (j) {
           if (!j.success) throw new Error(j.message || 'failed');
           f.classList.remove('is-sending'); f.classList.add('is-sent');
+          var ar = f.getAttribute('data-autoreply');
+          if (ar && data.email) {
+            fetch(ar, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ site: f.getAttribute('data-site'), name: data.name || '', email: data.email }) }).catch(function () {});
+          }
           if (st) st.textContent = f.getAttribute('data-thanks') || 'Thanks, your message is in. We will be in touch shortly.';
           f.reset();
           if (window.gtag) gtag('event', 'generate_lead', { form: data.subject });

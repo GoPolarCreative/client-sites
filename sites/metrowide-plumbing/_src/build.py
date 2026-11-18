@@ -175,6 +175,7 @@ def composer(subject):
 <div class="cells">
 <label><span>Your name</span><input name="name" autocomplete="name" required></label>
 <label><span>Phone</span><input name="phone" type="tel" autocomplete="tel" required></label>
+<label><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
 <label><span>Suburb</span><input name="suburb" autocomplete="address-level2" required data-suburb></label>
 </div>
 <label class="msg"><span>What is going on</span><textarea name="message" rows="3" data-msg required></textarea></label>"""
@@ -193,6 +194,7 @@ def quote_strip(subject="Contact Page Enquiry"):
     strip = "".join(s.img(k, sizes="200px", cls="strip-img") for k in ["green", "brassvan", "double", "arch", "brassshower", "combo", "under"] * 2)
     fields = """<label><span>Name</span><input name="name" autocomplete="name" required placeholder="Name"></label>
 <label><span>Phone</span><input name="phone" type="tel" autocomplete="tel" required placeholder="Phone"></label>
+<label><span>Email</span><input name="email" type="email" autocomplete="email" required placeholder="Email"></label>
 <label><span>Suburb</span><input name="suburb" autocomplete="address-level2" required placeholder="Suburb"></label>
 <label><span>What is going on</span><input name="message" required placeholder="What is going on"></label>"""
     return f"""<section class="quote" id="quote" aria-labelledby="quote-h">

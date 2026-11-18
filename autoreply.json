@@ -1,0 +1,22 @@
+{
+  "bhavan-building": {
+    "enabled": false,
+    "business": "Bhavan Building",
+    "owner": "Abi",
+    "on_job": "on site",
+    "reply_to": "bhavanbuilding@gmail.com",
+    "phone": "0426 045 004",
+    "tel": "+61426045004",
+    "website": "https://www.bhavanbuilding.com.au"
+  },
+  "metrowide-plumbing": {
+    "enabled": true,
+    "business": "Metrowide Plumbing",
+    "owner": "Dan",
+    "on_job": "on the tools",
+    "reply_to": "info@metrowideplumbing.com.au",
+    "phone": "0423 017 489",
+    "tel": "+61423017489",
+    "website": "https://www.metrowideplumbing.com.au"
+  }
+}

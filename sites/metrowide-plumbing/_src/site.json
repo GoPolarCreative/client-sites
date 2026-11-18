@@ -17,11 +17,59 @@
   "ga4": "",
   "source_row": "Trade Websites sheet row 47 (submitted 7/10/2026)",
   "regions": {
-    "Inner Melbourne": ["Melbourne", "Carlton", "Fitzroy", "Collingwood", "Richmond", "South Yarra", "St Kilda", "Port Melbourne", "Brunswick"],
-    "North": ["Coburg", "Northcote", "Thornbury", "Preston", "Reservoir", "Bundoora", "Epping", "Craigieburn"],
-    "West": ["Footscray", "Essendon", "Moonee Ponds", "Sunshine", "Williamstown", "Altona", "Point Cook", "Werribee"],
-    "East": ["Kew", "Camberwell", "Box Hill", "Doncaster", "Blackburn", "Glen Waverley", "Ringwood", "Croydon"],
-    "South East and Bayside": ["Brighton", "Bentleigh", "Oakleigh", "Clayton", "Cheltenham", "Mentone", "Dandenong", "Narre Warren", "Berwick", "Frankston"]
+    "Inner Melbourne": [
+      "Melbourne",
+      "Carlton",
+      "Fitzroy",
+      "Collingwood",
+      "Richmond",
+      "South Yarra",
+      "St Kilda",
+      "Port Melbourne",
+      "Brunswick"
+    ],
+    "North": [
+      "Coburg",
+      "Northcote",
+      "Thornbury",
+      "Preston",
+      "Reservoir",
+      "Bundoora",
+      "Epping",
+      "Craigieburn"
+    ],
+    "West": [
+      "Footscray",
+      "Essendon",
+      "Moonee Ponds",
+      "Sunshine",
+      "Williamstown",
+      "Altona",
+      "Point Cook",
+      "Werribee"
+    ],
+    "East": [
+      "Kew",
+      "Camberwell",
+      "Box Hill",
+      "Doncaster",
+      "Blackburn",
+      "Glen Waverley",
+      "Ringwood",
+      "Croydon"
+    ],
+    "South East and Bayside": [
+      "Brighton",
+      "Bentleigh",
+      "Oakleigh",
+      "Clayton",
+      "Cheltenham",
+      "Mentone",
+      "Dandenong",
+      "Narre Warren",
+      "Berwick",
+      "Frankston"
+    ]
   },
   "flags": [
     "Service area was answered as 'All areas' with no city. Melbourne assumed (CONFIRM). Regions and suburbs on the areas page are a starting list for Dan to correct.",
@@ -34,5 +82,9 @@
     "All seven job photos are bathrooms. No photos of new build rough-ins, commercial work or maintenance callouts, so those pages reuse bathroom photos. CLIENT TO SUPPLY site photos.",
     "Logo arrived as a phone screenshot of the artwork. Cropped and made transparent; it holds up at header size but a vector original would be better.",
     "Photo bath-laundry-combo had a screen scrollbar on its right edge; trimmed 44px."
-  ]
+  ],
+  "autoreply": {
+    "enabled": true,
+    "on_job": "on the tools"
+  }
 }

@@ -20,11 +20,55 @@
   "ga4": "",
   "source_row": "Trade Websites sheet row 43 (submitted 7/1/2026)",
   "regions": {
-    "Glen Eira and Kingston": ["Bentleigh East", "Bentleigh", "Ormond", "Caulfield", "Mentone", "Parkdale", "Mordialloc", "Aspendale", "Edithvale", "Bonbeach"],
-    "Bayside and Port Phillip": ["Brighton", "Hampton", "Sandringham", "Black Rock", "Beaumaris", "St Kilda", "Albert Park", "Middle Park"],
-    "Monash": ["Oakleigh", "Chadstone", "Ashwood", "Glen Waverley", "Mount Waverley"],
-    "Stonnington": ["Malvern", "Malvern East", "Armadale", "Toorak", "South Yarra"],
-    "Boroondara and Whitehorse": ["Camberwell", "Hawthorn", "Hawthorn East", "Kew", "Canterbury", "Balwyn", "Balwyn North", "Ashburton", "Blackburn", "Forest Hill", "Vermont South"]
+    "Glen Eira and Kingston": [
+      "Bentleigh East",
+      "Bentleigh",
+      "Ormond",
+      "Caulfield",
+      "Mentone",
+      "Parkdale",
+      "Mordialloc",
+      "Aspendale",
+      "Edithvale",
+      "Bonbeach"
+    ],
+    "Bayside and Port Phillip": [
+      "Brighton",
+      "Hampton",
+      "Sandringham",
+      "Black Rock",
+      "Beaumaris",
+      "St Kilda",
+      "Albert Park",
+      "Middle Park"
+    ],
+    "Monash": [
+      "Oakleigh",
+      "Chadstone",
+      "Ashwood",
+      "Glen Waverley",
+      "Mount Waverley"
+    ],
+    "Stonnington": [
+      "Malvern",
+      "Malvern East",
+      "Armadale",
+      "Toorak",
+      "South Yarra"
+    ],
+    "Boroondara and Whitehorse": [
+      "Camberwell",
+      "Hawthorn",
+      "Hawthorn East",
+      "Kew",
+      "Canterbury",
+      "Balwyn",
+      "Balwyn North",
+      "Ashburton",
+      "Blackburn",
+      "Forest Hill",
+      "Vermont South"
+    ]
   },
   "flags": [
     "Two phone numbers on the form: best contact 0474 906 716, website number 0426 045 004. The site uses 0426 045 004 as asked. CONFIRM which one Abi answers.",
@@ -36,5 +80,9 @@
     "powder-terracotta.jpg is 480x640 and laundry-black-timber.jpg is a phone shot; both used small only.",
     "About copy says the name means 'house' (Bhavan is Hindi and Sanskrit for a house or building). CONFIRM Abi is happy with that line.",
     "Client was told free hosting until 1 August then $30/month (old offer). Confirm plan before go-live."
-  ]
+  ],
+  "autoreply": {
+    "enabled": false,
+    "on_job": "on site"
+  }
 }

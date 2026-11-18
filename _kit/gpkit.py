@@ -33,6 +33,8 @@ KIT = Path(__file__).resolve().parent
 CREDIT_TEXT = "Website by Go Polar Creative"
 CREDIT = f'<a href="https://www.itscold.com.au" target="_blank" rel="noopener">{CREDIT_TEXT}</a>'
 PLACEHOLDER_KEY = "c898e546-5c35-4a3e-ba3a-fd5e7cae5100"
+# Go Polar auto-reply web app (Apps Script on the Go Polar Gmail). See _kit/autoreply/.
+AUTOREPLY_URL = "PENDING"
 UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
 STATES = {"VIC": "Victoria", "NSW": "New South Wales", "QLD": "Queensland", "WA": "Western Australia",
           "SA": "South Australia", "TAS": "Tasmania", "ACT": "Australian Capital Territory", "NT": "Northern Territory"}
@@ -80,18 +82,6 @@ class Site:
         self.head_extra = ""
         self.flags: list[str] = list(d.get("flags", []))
         self.today = datetime.date.today().isoformat()
-
-    # ------------------------------------------------------------------ monthly suburb pages
-    def suburbs(self):
-        """Published suburb pages: one JSON per suburb in _src/suburbs/, written by the monthly run.
-        Returns (pages, links) where links maps suburb name to its URL path."""
-        folder = self.src / "suburbs"
-        pages = [json.loads(f.read_text()) for f in sorted(folder.glob("*.json"))] if folder.exists() else []
-        plan = json.loads((self.src / "plan.json").read_text()) if (self.src / "plan.json").exists() else {}
-        pattern = plan.get("pattern", "/{slug}/")
-        for p in pages:
-            p["path"] = pattern.format(slug=slugify(p["suburb"]))
-        return pages, {p["suburb"]: p["path"] for p in pages}
 
     # ------------------------------------------------------------------ notes
     def flag(self, text: str):
@@ -166,7 +156,9 @@ class Site:
     def form(self, subject_suffix, fields_html, button="Send", cls="", note=""):
         """Web3Forms form. fields_html is the site's own markup for inputs. Kit adds the plumbing."""
         subject = f"{self.name} - {subject_suffix}"
-        return f"""<form class="{cls}" action="https://api.web3forms.com/submit" method="POST" data-w3f>
+        ar = self.d.get("autoreply", {})
+        ar_attr = f' data-autoreply="{AUTOREPLY_URL}" data-site="{self.slug}"' if ar.get("enabled") and AUTOREPLY_URL.startswith("https") else ""
+        return f"""<form class="{cls}" action="https://api.web3forms.com/submit" method="POST" data-w3f{ar_attr}>
 <input type="hidden" name="access_key" value="{self.form_key}">
 <input type="hidden" name="subject" value="{esc(subject)}">
 <input type="hidden" name="from_name" value="{esc(self.name)} website">
@@ -393,6 +385,24 @@ class Site:
             p["path"] = pattern.format(slug=slugify(p["suburb"]))
         return pages, {p["suburb"]: p["path"] for p in pages}
 
+    # ------------------------------------------------------------------ instant auto-reply
+    def autoreply_entry(self):
+        """Keep this site's line in the repo-root autoreply.json that the Apps Script reads."""
+        ar = self.d.get("autoreply", {})
+        path = self.out.parent.parent / "autoreply.json"
+        data = json.loads(path.read_text()) if path.exists() else {}
+        data[self.slug] = {
+            "enabled": bool(ar.get("enabled")),
+            "business": self.name,
+            "owner": ar.get("owner", self.d.get("owner", "")),
+            "on_job": ar.get("on_job", "on the job"),
+            "reply_to": ar.get("reply_to", self.d.get("email")),
+            "phone": self.phone,
+            "tel": self.tel,
+            "website": self.base,
+        }
+        path.write_text(json.dumps(dict(sorted(data.items())), indent=2) + "\n")
+
     # ------------------------------------------------------------------ notes
     def notes(self, *, direction, idea, live, type_, palette, redraws=(), decisions=()):
         """Write BUILD-NOTES.md at the site root (not deployed). Call before finish()."""
@@ -447,6 +457,7 @@ class Site:
         if nf.exists():
             shutil.copy(nf, self.out / "404.html")
         (self.src / "flags.json").write_text(json.dumps(self.flags, indent=2) + "\n")
+        self.autoreply_entry()
         print(f"built {self.slug}: {len(self.pages)} pages, {len(self.images)} images, {len(self.flags)} flags")
 
 
