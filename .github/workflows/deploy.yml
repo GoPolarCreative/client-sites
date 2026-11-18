@@ -55,12 +55,18 @@ jobs:
           echo "## Deployments" >> "$GITHUB_STEP_SUMMARY"
           for SITE in ${{ steps.changed.outputs.sites }}; do
             echo "::group::$SITE"
-            cd "sites/$SITE"
+            # Deploy a clean copy from outside the git checkout. Run inside the repo, the Vercel CLI
+            # uploads the whole repo root, which serves a 404 and exposes every client's _src files.
+            OUT="$RUNNER_TEMP/deploy/$SITE"
+            rm -rf "$OUT" && mkdir -p "$OUT"
+            rsync -a --exclude '_src' --exclude 'BUILD-NOTES.md' "sites/$SITE/" "$OUT/"
+            test -f "$OUT/index.html" || { echo "sites/$SITE has no index.html"; exit 1; }
+            cd "$OUT"
             # Links to the Vercel project named after the folder, creating it on first deploy
             vercel link --yes --project "$SITE" --token "$VERCEL_TOKEN"
             URL=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN")
             echo "$SITE: $URL"
             echo "- **$SITE**: $URL" >> "$GITHUB_STEP_SUMMARY"
-            cd - >/dev/null
+            cd "$GITHUB_WORKSPACE"
             echo "::endgroup::"
           done
