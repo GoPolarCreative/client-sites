@@ -21,5 +21,6 @@
       "status": "test build for skill comparison",
       "monthly_pages": true
     }
-  ]
+  ],
+  "autoreply_rule": "Instant enquiry auto-reply is for NEW clients only (questionnaire V2 sign-ups from the Black Friday offer on). New builds set autoreply.enabled true in site.json. Never switch it on for existing or rebuilt past clients."
 }

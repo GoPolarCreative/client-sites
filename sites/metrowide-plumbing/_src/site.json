@@ -84,7 +84,7 @@
     "Photo bath-laundry-combo had a screen scrollbar on its right edge; trimmed 44px."
   ],
   "autoreply": {
-    "enabled": true,
+    "enabled": false,
     "on_job": "on the tools"
   }
 }
