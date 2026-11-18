@@ -1,9 +1,5 @@
-"""Metrowide Plumbing. Direction: the well-kept board (taste-skill dense-tiles), cut on the logo's slant.
-
-Idea: on this page, the slanted black band of the Metrowide logo, with its blue marker square, becomes
-the board: every action tile is cut on the logo's slant, and the name runs wider than its band the way
-'metro wide' covers more ground than one suburb.
-Live thing: 'Tell Dan what's going on' composes the job as a text or a form message from three taps.
+"""Metrowide Plumbing. Go Polar house style: dark and light sections, logo blue accent,
+condensed uppercase headings, hero quote form, service cards, stat band, CTA band.
 
 Run: python3 sites/metrowide-plumbing/_src/build.py
 """
@@ -14,19 +10,29 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "_kit"))
 from PIL import Image  # noqa: E402
 
-from gpkit import CREDIT, Site, esc, slugify  # noqa: E402
+from gpkit import CREDIT, Site, esc  # noqa: E402
 
 s = Site(__file__)
 d = s.d
 TEL = s.tel
 PH = s.phone
-SMS = "sms:" + TEL
+EMAIL = d["email"]
 
-s.fonts([("libre-franklin", "Libre Franklin", [700, 800, 900], ["normal"]),
-         ("libre-franklin", "Libre Franklin", [900], ["italic"]),
-         ("source-serif-4", "Source Serif 4", [400, 600], ["normal"]),
-         ("source-serif-4", "Source Serif 4", [400], ["italic"])],
-        preload=["libre-franklin-latin-900-italic.woff2", "source-serif-4-latin-400-normal.woff2"])
+s.fonts([("barlow-condensed", "Barlow Condensed", [600, 700, 800], ["normal"]),
+         ("dm-sans", "DM Sans", [400, 500, 700], ["normal"])],
+        preload=["barlow-condensed-latin-800-normal.woff2", "dm-sans-latin-400-normal.woff2"])
+
+# ---------------------------------------------------------------- icons (Phosphor bold, inlined as a sprite)
+_icons = []
+for f in sorted((s.src / "icons").glob("*.svg")):
+    inner = re.sub(r"^<svg[^>]*>|</svg>\s*$", "", f.read_text().strip())
+    _icons.append(f'<symbol id="i-{f.stem}" viewBox="0 0 256 256">{inner}</symbol>')
+SPRITE = '<svg class="sprite" aria-hidden="true" focusable="false">' + "".join(_icons) + "</svg>"
+
+
+def I(name, cls="ic"):
+    return f'<svg class="{cls}" aria-hidden="true" focusable="false"><use href="#i-{name}"/></svg>'
+
 
 # ---------------------------------------------------------------- images
 P = {
@@ -121,96 +127,212 @@ SV = {x["slug"]: x for x in SERVICES}
 d["services"] = [{"name": x["name"], "slug": x["slug"], "page": True} for x in SERVICES]
 d["areas"] = [sub for subs in d["regions"].values() for sub in subs]
 
+# ---------------------------------------------------------------- service extras for cards
+EXTRA = {
+    "emergency-plumber-melbourne": ("lightning", "combo", "Burst pipes, blocked drains and water where it should not be. Same-day callouts across Melbourne."),
+    "bathroom-renovation-plumbing-melbourne": ("shower", "green", "Rough-in to fit-off for bathrooms, laundries and kitchens, booked around your tiler and builder."),
+    "new-build-plumbing-melbourne": ("hard-hat", "double", "Drainage, under-slab, rough-in and fit-off for builders and developers, run to your program."),
+    "commercial-plumbing-melbourne": ("buildings", "arch", "Repairs, upgrades and fit-outs for shops, offices and property managers, around your trading hours."),
+    "plumbing-maintenance-melbourne": ("wrench", "under", "Leaking taps, running toilets, hot water and slow drains, fixed properly with the price agreed first."),
+}
+for x in SERVICES:
+    x["icon"], x["card_photo"], x["blurb"] = EXTRA[x["slug"]]
+    x["title"] = x["title"].replace("&amp;", "&")
+
+JOBS = ["Burst or leaking pipe", "Blocked drain or toilet", "Hot water", "Leaking tap or toilet",
+        "Bathroom renovation", "New build or extension", "Commercial job", "Something else"]
+PAGES = [("Our work", "/our-work/"), ("Service areas", "/service-areas/"), ("About", "/about/"), ("Contact", "/contact/")]
+
+
+def hl(text, n=None, phrase=None):
+    """Wrap the accent phrase of a heading: an explicit phrase, or the last n words."""
+    if phrase and phrase in text:
+        a, b = text.split(phrase, 1)
+        return f'{esc(a)}<span class="hl">{esc(phrase)}</span>{esc(b)}'
+    w = text.split(" ")
+    n = n or 2
+    return esc(" ".join(w[:-n])) + f' <span class="hl">{esc(" ".join(w[-n:]))}</span>'
+
+
 # ---------------------------------------------------------------- shared chrome
-NAV = [("Emergency", "/emergency-plumber-melbourne/"), ("Renovations", "/bathroom-renovation-plumbing-melbourne/"),
-       ("New builds", "/new-build-plumbing-melbourne/"), ("Commercial", "/commercial-plumbing-melbourne/"),
-       ("Maintenance", "/plumbing-maintenance-melbourne/"), ("Our work", "/our-work/"),
-       ("Areas", "/service-areas/"), ("About", "/about/"), ("Contact", "/contact/")]
-
-
 def header(path):
-    links = "".join(f'<a href="{u}"{" aria-current=page" if u == path else ""}>{n}</a>' for n, u in NAV)
-    return f"""<header class="hd">
-<a class="hd-logo" href="/">{LOGO}></a>
-<nav class="hd-nav" id="nav" aria-label="Main">{links}</nav>
-<a class="hd-call slant" href="tel:{TEL}"><span>Call Dan</span> {PH}</a>
-<button class="hd-menu" type="button" data-nav-toggle aria-controls="nav" aria-expanded="false">Menu</button>
-</header>"""
+    svc = "".join(f'<a href="/{x["slug"]}/">{I(x["icon"])}<span>{x["name"]}</span></a>' for x in SERVICES)
+    pages = "".join(f'<a class="nav-a" href="{u}"{" aria-current=page" if u == path else ""}>{n}</a>' for n, u in PAGES)
+    return f"""{SPRITE}
+<div class="topbar"><div class="wrap topbar-in">
+<p>{I('lightning')} Emergency and same-day plumbing across Melbourne</p>
+<a href="mailto:{EMAIL}">{I('envelope-simple')} {EMAIL}</a>
+</div></div>
+<header class="hd"><div class="wrap hd-in">
+<a class="hd-logo" href="/" aria-label="Metrowide Plumbing home">{LOGO}></a>
+<nav class="hd-nav" id="nav" aria-label="Main">
+<div class="dd"><button class="dd-btn" type="button" aria-expanded="false" aria-controls="dd-svc">Services {I('plus', 'ic dd-ic')}</button>
+<div class="dd-menu" id="dd-svc">{svc}</div></div>
+{pages}
+<a class="btn btn-accent nav-call" href="tel:{TEL}">{I('phone')} Call {PH}</a>
+</nav>
+<a class="hd-phone" href="tel:{TEL}">{I('phone', 'ic hd-phone-ic')}<span><small>Call Dan</small>{PH}</span></a>
+<a class="btn btn-accent hd-cta" href="#contact">Free quote {I('arrow-right')}</a>
+<button class="hd-menu" type="button" data-nav-toggle aria-controls="nav" aria-expanded="false" aria-label="Menu">{I('list', 'ic m-open')}{I('x', 'ic m-close')}</button>
+</div></header>"""
 
 
 def footer(path):
-    nav = "".join(f'<li><a href="{u}">{n}</a></li>' for n, u in NAV)
-    return f"""<footer class="ft board">
-<div class="t ft-say"><p class="ft-line">Melbourne plumbing that turns up when it says it will.</p>
-<p class="ft-legal">&copy; <span data-year>2026</span> Metrowide Plumbing. {CREDIT}</p></div>
-<nav class="t ft-nav" aria-label="Footer"><h3>Pages</h3><ul>{nav}</ul></nav>
-<div class="t ft-time"><h3>Melbourne</h3><p>It is <time data-mel-time>now</time> in Melbourne.</p><p>Emergency and same-day jobs taken.</p></div>
-<div class="t ft-mail"><h3>Email</h3><a href="mailto:{d['email']}">{d['email']}</a></div>
-<div class="t ft-mark">{LOGO} loading="lazy"></div>
-<a class="t ft-go" href="tel:{TEL}"><span>Call Dan<br>{PH}</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 40 40 8M16 8h24v24" fill="none" stroke="currentColor" stroke-width="4"/></svg></a>
+    svc = "".join(f'<li><a href="/{x["slug"]}/">{x["name"]}</a></li>' for x in SERVICES)
+    pages = "".join(f'<li><a href="{u}">{n}</a></li>' for n, u in [("Home", "/")] + PAGES)
+    return f"""<footer class="ft"><div class="wrap ft-grid">
+<div class="ft-brand"><a href="/" class="ft-logo">{LOGO} loading="lazy"></a>
+<p>Melbourne plumbers for builders, developers and homeowners. Bathrooms, new builds, commercial work and emergency callouts.</p>
+<a class="btn btn-accent" href="tel:{TEL}">{I('phone')} {PH}</a></div>
+<div><h3>Services</h3><ul>{svc}</ul></div>
+<div><h3>Pages</h3><ul>{pages}</ul></div>
+<div><h3>Contact</h3><ul class="ft-contact">
+<li>{I('phone')}<a href="tel:{TEL}">{PH}</a></li>
+<li>{I('envelope-simple')}<a href="mailto:{EMAIL}">{EMAIL}</a></li>
+<li>{I('map-pin')}<span>All of metropolitan Melbourne</span></li>
+<li>{I('lightning')}<span>Emergency and same-day jobs taken</span></li></ul></div>
+</div>
+<div class="wrap ft-base"><p>&copy; <span data-year>2026</span> Metrowide Plumbing. All rights reserved.</p><p>{CREDIT}</p></div>
 </footer>"""
 
 
 def callbar(path):
-    return f"""<div class="cb" aria-label="Quick contact">
-<a class="cb-call slant" href="tel:{TEL}">Call {PH}</a>
-<a class="cb-text" href="{'/#job' if path == '/' else '/contact/#job'}">Text the job</a>
-</div>"""
+    return f"""<div class="cb"><a class="cb-call" href="tel:{TEL}">{I('phone')} Call Dan</a><a class="cb-quote" href="#contact">Free quote</a></div>"""
 
 
 s.header, s.footer, s.callbar = header, footer, callbar
 
-JOBS = ["Burst or leaking pipe", "Blocked drain or toilet", "Hot water", "Leaking tap or toilet",
-        "Bathroom renovation", "New build or extension", "Commercial job", "Something else"]
-WHEN = ["Today", "This week", "Just a quote"]
+
+def quote_form(subject, title, sub, dark=False, tag="h2"):
+    opts = "".join(f"<option>{esc(j)}</option>" for j in JOBS)
+    fields = f"""<div class="f-row"><label><span>Name</span><input name="name" autocomplete="name" required placeholder="Your name"></label>
+<label><span>Phone</span><input name="phone" type="tel" autocomplete="tel" required placeholder="04xx xxx xxx"></label></div>
+<div class="f-row"><label><span>Email</span><input name="email" type="email" autocomplete="email" placeholder="you@email.com"></label>
+<label><span>Suburb</span><input name="suburb" autocomplete="address-level2" required placeholder="e.g. Brunswick"></label></div>
+<label><span>What is the job?</span><select name="job">{opts}</select></label>
+<label><span>Tell us a bit more</span><textarea name="message" rows="3" placeholder="What is happening and how soon you need us"></textarea></label>"""
+    form = s.form(subject, fields, button=f"Send to Dan {I('arrow-right')}", cls="qf")
+    return f"""<div class="qcard{' qcard-dark' if dark else ''}">
+<{tag} class="qcard-h">{title}</{tag}><p class="qcard-p">{sub}</p>
+{form}
+<p class="qcard-note">{I('check-circle')} <span>Free quote, no obligation. Urgent? <a href="tel:{TEL}">Call {PH}</a></span></p>
+</div>"""
 
 
-def composer(subject):
-    chips = "".join(f'<label class="chip"><input type="radio" name="job" value="{esc(j)}"{" checked" if i == 0 else ""}><span>{esc(j)}</span></label>'
-                    for i, j in enumerate(JOBS))
-    when = "".join(f'<label class="chip"><input type="radio" name="when" value="{w}"{" checked" if i == 0 else ""}><span>{w}</span></label>'
-                   for i, w in enumerate(WHEN))
-    fields = f"""<fieldset class="pick"><legend>What is the job?</legend><div class="chips">{chips}</div></fieldset>
-<fieldset class="pick"><legend>How soon?</legend><div class="chips">{when}</div></fieldset>
-<div class="cells">
-<label><span>Your name</span><input name="name" autocomplete="name" required></label>
-<label><span>Phone</span><input name="phone" type="tel" autocomplete="tel" required></label>
-<label><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
-<label><span>Suburb</span><input name="suburb" autocomplete="address-level2" required data-suburb></label>
-</div>
-<label class="msg"><span>What is going on</span><textarea name="message" rows="3" data-msg required></textarea></label>"""
-    f = s.form(subject, fields, button="Send to Dan", cls="composer", note="")
-    return f.replace("</form>", f'<a class="sms slant" data-sms href="{SMS}">Or send it as a text</a></form>')
+def head(eyebrow, h2, p="", center=False, hid=None, dark=False):
+    idattr = f' id="{hid}"' if hid else ""
+    return f"""<div class="sh{' sh-c' if center else ''} rv"><p class="eyebrow">{eyebrow}</p><h2{idattr}>{h2}</h2>{f'<p class="sh-p">{p}</p>' if p else ''}</div>"""
 
 
-def faq_block(items, heading="Questions people ask"):
-    return f"""<section class="faq board" aria-labelledby="faq-h">
-<div class="t faq-head"><h2 id="faq-h">{heading}</h2><p>Something else? Call Dan on <a href="tel:{TEL}">{PH}</a>.</p></div>
-<div class="faq-list">{Site.faq_html(items, cls='t')}</div>
+def svc_cards(items):
+    return "".join(f"""<a class="svc rv" style="--i:{i}" href="/{x['slug']}/">
+<div class="svc-img">{s.img(x['card_photo'], sizes='(min-width: 1100px) 380px, (min-width: 700px) 45vw, 100vw')}</div>
+<div class="svc-body"><span class="svc-ic">{I(x['icon'])}</span><h3>{x['name']}</h3><p>{x['blurb']}</p>
+<span class="more">Learn more {I('arrow-right')}</span></div></a>""" for i, x in enumerate(items))
+
+
+WALL = [("green", "Green finger tile, terrazzo and a freestanding bath"), ("arch", "Terrazzo, black tapware and an arch mirror"),
+        ("brassvan", "Brushed brass wall mixer over a vessel basin"), ("double", "Double shower on white finger tile"),
+        ("brassshower", "Brushed brass rain head and hand shower"), ("combo", "Bathroom and laundry in one room"),
+        ("under", "Vanity wastes and stops, plumbed neat")]
+
+
+def gallery(items, cls=""):
+    return f'<div class="gal {cls}" data-gallery>' + "".join(
+        f'<a class="gal-i rv" style="--i:{i % 3}" href="{s.largest(k)}" data-lb data-cap="{esc(c)}">'
+        f'{s.img(k, sizes="(min-width: 1100px) 380px, (min-width: 700px) 45vw, 100vw")}<span class="gal-cap">{esc(c)}</span></a>'
+        for i, (k, c) in enumerate(items)) + "</div>"
+
+
+def cta_band():
+    return f"""<section class="cta" aria-labelledby="cta-h"><div class="wrap cta-in rv">
+<div><h2 id="cta-h">Need a plumber today?</h2><p>Emergency and same-day jobs across Melbourne. Free quotes on everything else.</p></div>
+<div class="btns"><a class="btn btn-dark" href="tel:{TEL}">{I('phone')} Call {PH}</a><a class="btn btn-line-dark" href="#contact">Send an enquiry</a></div>
+</div></section>"""
+
+
+def contact_section():
+    cards = [("phone", "Call Dan", f'<a href="tel:{TEL}">{PH}</a>'), ("envelope-simple", "Email", f'<a href="mailto:{EMAIL}">{EMAIL}</a>'),
+             ("map-pin", "Service area", "All of metropolitan Melbourne"),
+             ("clock", "Urgent jobs", "Emergency and same-day<!-- CLIENT TO CONFIRM: business hours -->")]
+    cc = "".join(f'<div class="cc rv" style="--i:{i}"><span class="cc-ic">{I(ic)}</span><div><p class="cc-k">{k}</p><p class="cc-v">{v}</p></div></div>'
+                 for i, (ic, k, v) in enumerate(cards))
+    return f"""<section class="contact dark" id="contact" aria-labelledby="contact-h"><div class="wrap contact-in">
+<div class="contact-copy">{head('Get in touch', 'Send Dan <span class="hl">the job</span>', 'Call for anything urgent. For everything else, send the details and Dan comes back to you with a time and a price.', hid='contact-h')}
+<div class="cc-grid">{cc}</div></div>
+<div class="rv">{quote_form('Contact Page Enquiry', 'Request a free quote', 'Name, number, suburb and the job. That is all we need.', dark=False, tag='h3')}</div>
+</div></section>"""
+
+
+def faq_section(items, title="Questions, <span class=\"hl\">answered</span>"):
+    return f"""<section class="faq light-alt" aria-labelledby="faq-h"><div class="wrap faq-in">
+<div class="faq-side">{head('Good to know', title, hid='faq-h')}
+<div class="faq-call rv"><p>Cannot see your question? Dan is happy to talk it through.</p><a class="btn btn-accent" href="tel:{TEL}">{I('phone')} Call {PH}</a></div></div>
+<div class="faq-list rv">{Site.faq_html(items, cls='fq')}</div>
+</div></section>"""
+
+
+_rl = list(d["regions"].items())
+REGIONS = "".join(
+    f'<div class="rg rv" style="--i:{i % 3}"><h3>{I("map-pin")} {esc(r)}</h3><ul>' + "".join(f'<li data-sub="{esc(x.lower())}">{esc(x)}</li>' for x in subs) + "</ul></div>"
+    for i, (r, subs) in enumerate(_rl))
+
+
+def areas_section(h2tag_id="areas-h", intro="We are Melbourne plumbers in the full sense. Builders, homeowners and businesses call us from the inner suburbs right out to the growth corridors."):
+    return f"""<section class="areas light" aria-labelledby="{h2tag_id}"><div class="wrap areas-in">
+<div class="areas-side">{head('Service areas', 'Plumbers across <span class="hl">all of Melbourne</span>', intro, hid=h2tag_id)}
+<!-- CONFIRM WITH CLIENT BEFORE LAUNCH: form said 'All areas'. Regions and suburbs below are a starting list for Dan to correct. -->
+<label class="find rv"><span>Check your suburb</span><span class="find-box">{I('magnifying-glass')}<input type="search" placeholder="Type your suburb" data-area-filter autocomplete="off"></span></label>
+<p class="find-note rv" data-area-note>Not listed? We probably still cover it. <a href="tel:{TEL}">Call and ask.</a></p></div>
+<div class="rg-grid">{REGIONS}</div>
+</div></section>"""
+
+
+STEPS = [("phone", "Call or send the job", "Tell us what is happening and where. Urgent, call. If it can wait, use the form and Dan comes back to you."),
+         ("clipboard-text", "Free, upfront quote", "We look at the job and give you an accurate price before any work starts. No obligation."),
+         ("calendar-check", "On site when we said", "We turn up on the day and time agreed. If anything changes, you hear it from us first."),
+         ("broom", "Tested and tidy", "Everything is tested, the area is cleaned up and we tell you what we did before we leave.")]
+
+
+def process_section():
+    st = "".join(f'<div class="step rv" style="--i:{i}"><span class="step-n">{i + 1:02d}</span><span class="step-ic">{I(ic)}</span><h3>{t}</h3><p>{p}</p></div>'
+                 for i, (ic, t, p) in enumerate(STEPS))
+    return f"""<section class="process dark" aria-labelledby="proc-h"><div class="wrap">
+{head('How it works', 'From first call to <span class="hl">job done</span>', 'Four steps, the same on a dripping tap or a new house. You always know what is next.', center=True, hid='proc-h')}
+<div class="steps">{st}</div></div></section>"""
+
+
+STATS = [("5", "", "Years plumbing Melbourne", True), ("Same", "-day", "Emergency callouts", False),
+         ("Free", "", "Quotes, price agreed first", False), ("All", "", "Of metropolitan Melbourne", False)]
+
+
+def stat_band():
+    it = "".join(f'<div class="stat rv" style="--i:{i}"><p class="stat-n">{f"<span data-count={n}>0</span>" if c else n}{u}</p><p class="stat-l">{l}</p></div>'
+                 for i, (n, u, l, c) in enumerate(STATS))
+    return f'<section class="stats" aria-label="Metrowide at a glance"><div class="wrap stats-in">{it}</div></section>'
+
+
+def inner_hero(h1_html, lead, photo, crumbs):
+    trail = '<a href="/">Home</a>' + "".join(f'<span aria-hidden="true">/</span><a href="{u}">{esc(n)}</a>' for n, u in crumbs[:-1]) + f'<span aria-hidden="true">/</span><span>{esc(crumbs[-1][0])}</span>'
+    return f"""<section class="ihero" aria-labelledby="h1">
+<div class="hero-bg">{s.img(photo, sizes='100vw', eager=True, cls='hero-img')}</div>
+<div class="wrap ihero-in"><p class="crumbs">{trail}</p>
+<h1 id="h1">{h1_html}</h1><p class="hero-lead">{esc(lead)}</p>
+<div class="btns"><a class="btn btn-accent" href="tel:{TEL}">{I('phone')} Call {PH}</a><a class="btn btn-ghost" href="#contact">Get a free quote</a></div></div>
 </section>"""
 
 
-def quote_strip(subject="Contact Page Enquiry"):
-    strip = "".join(s.img(k, sizes="200px", cls="strip-img") for k in ["green", "brassvan", "double", "arch", "brassshower", "combo", "under"] * 2)
-    fields = """<label><span>Name</span><input name="name" autocomplete="name" required placeholder="Name"></label>
-<label><span>Phone</span><input name="phone" type="tel" autocomplete="tel" required placeholder="Phone"></label>
-<label><span>Email</span><input name="email" type="email" autocomplete="email" required placeholder="Email"></label>
-<label><span>Suburb</span><input name="suburb" autocomplete="address-level2" required placeholder="Suburb"></label>
-<label><span>What is going on</span><input name="message" required placeholder="What is going on"></label>"""
-    return f"""<section class="quote" id="quote" aria-labelledby="quote-h">
-<div class="strip" aria-hidden="true"><div class="strip-run">{strip}</div></div>
-<h2 id="quote-h">Free quotes, straight from Dan</h2>
-{s.form(subject, fields, button="Get my quote", cls="bar")}
-<p class="quote-small">Quotes are free. Rather talk? Call <a href="tel:{TEL}">{PH}</a> or email <a href="mailto:{d['email']}">{d['email']}</a>.</p>
-</section>"""
+def reviews_section():
+    """Live Google reviews. Hidden until the kit loads reviews from /api/reviews (see _kit/reviews_api.js)."""
+    if not s.has_google_reviews():
+        return ""
+    return f"""<section class="reviews light" data-gr-section aria-labelledby="rev-h"><div class="wrap">
+<div class="sh sh-c"><p class="eyebrow">Google reviews</p><h2 id="rev-h">What customers <span class="hl">say about us</span></h2></div>
+{s.reviews_mount(btn1='btn btn-line', btn2='btn btn-accent')}
+</div></section>"""
 
 
 # ---------------------------------------------------------------- home
-facts = ["5 years in business", "Emergency and same-day", "Free quotes", "Builders, developers, homeowners", "All of Melbourne"]
-link_tiles = "".join(f'<a class="t lk" href="/{x["slug"]}/">{x["nav"]}<span aria-hidden="true">{x["name"]}</span></a>' for x in SERVICES[:4])
-rail = ["We turn up when we say", "You get the price first", "You hear about changes first", "We clean up after"]
-rail_html = "".join(f'<p class="t r{i}">{r}</p>' for i, r in enumerate(rail))
-
 home_faq = [
     ("Do you do emergency plumbing?", "Yes. We take emergency and same-day jobs across Melbourne. Call 0423 017 489 and tell us what is happening. If water is running, turn it off at the mains first."),
     ("Do you charge for quotes?", "No. Quotes are free. For renovations and new builds we quote from plans or a site visit, and the price is clear before work starts."),
@@ -220,193 +342,174 @@ home_faq = [
     ("What if the job changes once you start?", "We tell you before we do anything extra and agree the price first. No surprise lines on the invoice."),
 ]
 
-wall = [("green", "Green finger tile, terrazzo and a freestanding bath"), ("arch", "Terrazzo, black tapware and an arch mirror"),
-        ("brassvan", "Brushed brass wall mixer over a vessel basin"), ("double", "Double shower on white finger tile"),
-        ("brassshower", "Brushed brass rain head and hand shower"), ("combo", "Bathroom and laundry in one room"),
-        ("under", "Vanity wastes and stops, plumbed neat")]
+TRUST = [("clock", "5 years in business", "Residential and commercial"), ("lightning", "Emergency and same-day", "When water will not wait"),
+         ("currency-circle-dollar", "Free, upfront quotes", "Price agreed before we start"), ("users-three", "Builders and homeowners", "Booked to your program")]
+trust = "".join(f'<div class="tr rv" style="--i:{i}"><span class="tr-ic">{I(ic)}</span><div><p class="tr-k">{k}</p><p class="tr-v">{v}</p></div></div>'
+                for i, (ic, k, v) in enumerate(TRUST))
 
-
-def wall_html(items, big=False):
-    return "".join(f'<a class="w" href="{s.largest(k)}" data-lb data-cap="{esc(c)}">{s.img(k, sizes="(min-width: 900px) 40vw, 62vw")}'
-                   f'<span class="cap">{esc(c)}</span></a>' for k, c in items)
-
-
-_rl = list(d["regions"].items())
-regions_html = "".join(
-    f'<div class="t rg{" rg-last" if i == len(_rl) - 1 else ""}"><h3>{esc(r)}</h3><ul>' + "".join(f'<li data-sub="{esc(x.lower())}">{esc(x)}</li>' for x in subs) + "</ul></div>"
-    for i, (r, subs) in enumerate(_rl))
-steps = [("Call or text", "Tell us the job and the suburb. Urgent, call. If it can wait, text or use the form and Dan comes back to you."),
-         ("Free quote", "We look at the job and give you an accurate price up front. No obligation, no guesswork."),
-         ("On the day", "We turn up when we said we would. If anything changes, you hear it from us first, not from the builder."),
-         ("Done and tidy", "We test everything, clean up and tell you what we did before we leave.")]
-steps_html = "".join(
-    f'<div class="stp s{i}{" open" if i == 0 else ""}"><button type="button" aria-expanded="{"true" if i == 0 else "false"}" aria-controls="stp{i}">{n}</button><p id="stp{i}">{t}</p></div>' for i, (n, t) in enumerate(steps))
+WHY = [("Turn up when we say", "If we book 7am, we are there at 7am. If something changes, you hear it from us first."),
+       ("Price before work", "A clear quote before a tile comes off or a pipe gets cut. Extras agreed first."),
+       ("Work that lasts", "Set out right before the walls close, so the finished room looks as good as the photos."),
+       ("Clean and tidy", "We protect your home, clean up after ourselves and walk you through what we did.")]
+why = "".join(f'<li class="rv" style="--i:{i}">{I("check-circle", "ic why-ic")}<div><p class="why-k">{k}</p><p class="why-v">{v}</p></div></li>'
+              for i, (k, v) in enumerate(WHY))
 
 home = f"""
-<section class="hero board" aria-labelledby="h1">
-<div class="t band" aria-hidden="true"><span>Plumbing Metro<b>wide</b> Plumbing</span></div>
-<nav class="links" aria-label="Main services">{link_tiles}</nav>
-<div class="t h-port">{s.img('brassshower', sizes='(min-width: 900px) 16vw, 50vw', eager=True)}</div>
-<ul class="t h-facts">{''.join(f'<li>{x}</li>' for x in facts)}</ul>
-<div class="t h-main">{s.img('green', sizes='(min-width: 900px) 66vw, 100vw', eager=True)}
-<div class="h-say"><h1 id="h1">Melbourne plumbing that turns up when it says it will.</h1>
-<p>Bathrooms, new builds, commercial and emergency work for builders, developers and homeowners.</p></div></div>
-<div class="h-rail">{rail_html}<a class="t r-go slant" href="tel:{TEL}">Call Dan<strong>{PH}</strong></a></div>
-</section>
+<section class="hero" aria-labelledby="h1">
+<div class="hero-bg">{s.img('green', sizes='100vw', eager=True, cls='hero-img')}</div>
+<div class="wrap hero-in">
+<div class="hero-copy">
+<ul class="pills"><li>{I('clock')} 5 years in business</li><li>{I('lightning')} Emergency and same-day</li><li>{I('currency-circle-dollar')} Free quotes</li></ul>
+<h1 id="h1">Melbourne plumbers<br> who turn up<br> <span class="hl">when they say.</span></h1>
+<p class="hero-lead">Bathroom renovations, new builds, commercial work and emergency callouts for builders, developers and homeowners right across Melbourne.</p>
+<div class="btns"><a class="btn btn-accent btn-lg" href="tel:{TEL}">{I('phone')} Call {PH}</a><a class="btn btn-ghost btn-lg" href="#services">Our services</a></div>
+<ul class="hero-ticks"><li>{I('check')} Residential and commercial</li><li>{I('check')} All of Melbourne</li><li>{I('check')} Price agreed first</li></ul>
+</div>
+<div class="hero-form" id="quote">{quote_form('Hero Form Enquiry', 'Get a <span class="hl">free quote</span>', 'Tell us about the job and Dan will get back to you with a time and a price.')}</div>
+</div></section>
 
-<section class="job board" id="job" aria-labelledby="job-h">
-<div class="t job-head"><h2 id="job-h">Tell Dan what is going on</h2>
-<p>Three taps and your suburb. Send it as a text from your phone or straight to Dan's inbox, and he comes back to you with a time.</p></div>
-<div class="t job-form">{composer('Hero Form Enquiry')}</div>
-</section>
+<section class="trust" aria-label="Why people call Metrowide"><div class="wrap trust-in">{trust}</div></section>
 
-<section class="mosaic board" aria-labelledby="what-h">
-<div class="t m-head"><h2 id="what-h">What we plumb</h2></div>
-<div class="t m-photo">{s.img('brassvan', sizes='(min-width: 900px) 50vw, 100vw')}</div>
-<div class="t m-fig"><strong>5</strong><span>years in business</span></div>
-<ul class="t m-list">{''.join(f'<li><a href="/{x["slug"]}/">{x["name"]}</a></li>' for x in SERVICES)}</ul>
-<p class="t m-say m1">Builders: rough-in and fit-off booked to your program.</p>
-<p class="t m-say m2">Homeowners: a clear quote before a single tile comes off.</p>
-<p class="t m-say m3">Emergencies: same-day when water is where it should not be.</p>
-</section>
+<section class="services light" id="services" aria-labelledby="svc-h"><div class="wrap">
+<div class="sh-row">{head('What we do', 'Plumbing services <span class="hl">across Melbourne</span>', 'From a dripping tap to a full new build, one plumber who turns up, quotes first and finishes properly.', hid='svc-h')}</div>
+<div class="svc-grid">{svc_cards(SERVICES)}
+<div class="svc svc-cta rv" style="--i:5"><span class="svc-ic">{I('chat-circle-text')}</span><h3>Not sure what you need?</h3>
+<p>Tell Dan what is going on and he will tell you straight what it needs and what it costs.</p>
+<div class="btns"><a class="btn btn-dark" href="tel:{TEL}">{I('phone')} {PH}</a></div></div>
+</div></div></section>
 
-<div class="marquee" aria-hidden="true"><div class="mq-run"><span>Metrowide Plumbing / All of Melbourne / Emergency and same-day / Free quotes / </span><span>Metrowide Plumbing / All of Melbourne / Emergency and same-day / Free quotes / </span></div></div>
+<section class="why dark" aria-labelledby="why-h"><div class="wrap why-in">
+<div class="why-media rv">{s.img('arch', sizes='(min-width: 900px) 540px, 100vw')}
+<div class="why-badge"><p class="why-badge-n">5</p><p class="why-badge-l">years plumbing<br>Melbourne</p></div></div>
+<div class="why-copy">{head('Why Metrowide', 'Trades who <span class="hl">actually turn up</span>', 'Jobs run on trades who arrive when they say, talk to you before you have to chase them and finish to a consistent standard. That is the whole idea behind Metrowide.', hid='why-h')}
+<ul class="why-list">{why}</ul>
+<div class="btns rv"><a class="btn btn-accent" href="#contact">Get a free quote {I('arrow-right')}</a><a class="btn btn-ghost" href="/about/">About us</a></div></div>
+</div></section>
 
-<section class="work" aria-labelledby="work-h">
-<div class="work-top"><h2 id="work-h">Recent work</h2><a href="/our-work/">See every job</a></div>
-<div class="wall" data-gallery>{wall_html(wall)}</div>
-</section>
+{stat_band()}
 
-<section class="about board" aria-labelledby="about-h">
-<div class="t ab-intro"><h2 id="about-h">Trades who turn up</h2>
-<p class="lead">Successful jobs rely on trades who arrive when they say they will, communicate before they are chased and finish to a consistent standard. That is the whole idea behind Metrowide.</p></div>
-<figure class="t ab-photo">{s.img('arch', sizes='(min-width: 900px) 60vw, 100vw')}
-<figcaption>Honest advice, quality work and plumbing that lasts, on custom homes, renovations and maintenance alike.</figcaption></figure>
-<div class="t ab-who"><h3>Who calls us</h3><ul><li>Builders</li><li>Developers</li><li>Homeowners</li><li>Property managers</li></ul></div>
-<dl class="t ab-facts"><div><dt>In business</dt><dd>5 years</dd></div><div><dt>Covers</dt><dd>Melbourne metro</dd></div>
-<div><dt>Urgent jobs</dt><dd>Same-day</dd></div><div><dt>Quotes</dt><dd>Free</dd></div></dl>
-</section>
+<section class="work light-alt" aria-labelledby="work-h"><div class="wrap">
+{head('Recent work', 'Bathrooms and fit-offs <span class="hl">we are proud of</span>', 'Terrazzo, finger tile, brushed brass and black tapware. Tap any photo to see it full size.', center=True, hid='work-h')}
+<!-- CLIENT TO SUPPLY: suburb for each job, plus photos of new build, commercial and maintenance work. -->
+{gallery(WALL[:6])}
+<div class="center rv"><a class="btn btn-dark" href="/our-work/">See all our work {I('arrow-right')}</a></div>
+</div></section>
 
-<section class="how board" aria-labelledby="how-h">
-<div class="t how-head"><h2 id="how-h">How a job runs</h2>
-<p>Four steps, the same on a dripping tap or a new house. You always know what is next and who is coming.</p></div>
-<div class="how-row">{steps_html}</div>
-</section>
+{process_section()}
 
-{faq_block(home_faq)}
+{reviews_section()}
 
-<section class="areas board" aria-labelledby="areas-h">
-<div class="t ar-head"><h2 id="areas-h">All of Melbourne</h2>
-<label class="ar-find"><span>Check your suburb</span><input type="search" placeholder="Type your suburb" data-area-filter autocomplete="off"></label>
-<p class="ar-note" data-area-note>Not listed? We probably still cover it. <a href="tel:{TEL}">Call and ask.</a></p></div>
-{regions_html}
-<a class="t ar-more slant" href="/service-areas/">Every area we cover</a>
-</section>
+{areas_section()}
 
-{quote_strip()}
+{faq_section(home_faq)}
+
+{cta_band()}
+
+{contact_section()}
 """
-hero_end = home.index("</section>") + 10
-home = home[:hero_end] + re.sub(r'class="t ', 'class="t rv ', home[hero_end:])
 s.page("/", title="Plumber Melbourne | Emergency, Renovations & New Builds | Metrowide Plumbing",
        description="Metrowide Plumbing: Melbourne plumbers for builders, developers and homeowners. Emergency and same-day jobs, renovations, new builds. Free quotes.",
        body=home, faq=home_faq, body_class="home")
 
-
-# ---------------------------------------------------------------- inner page frame
-def inner_hero(h1, lead, photo, crumbs):
-    trail = '<a href="/">Home</a>' + "".join(f' / <a href="{u}">{esc(n)}</a>' for n, u in crumbs[:-1]) + f' / <span>{esc(crumbs[-1][0])}</span>'
-    return f"""<section class="ih board" aria-labelledby="h1">
-<div class="t ih-say"><p class="crumbs">{trail}</p><h1 id="h1">{esc(h1)}</h1><p class="lead">{esc(lead)}</p>
-<div class="ih-acts"><a class="btn slant" href="tel:{TEL}">Call {PH}</a><a class="btn2" href="#quote">Free quote</a></div></div>
-<div class="t ih-photo">{s.img(photo, sizes='(min-width: 900px) 45vw, 100vw', eager=True)}</div>
-</section>"""
-
-
+# ---------------------------------------------------------------- service pages
 for x in SERVICES:
     path = f"/{x['slug']}/"
-    others = "".join(f'<li><a href="/{o["slug"]}/">{o["name"]}</a></li>' for o in SERVICES if o is not x)
-    body_tiles = "".join(f'<div class="t sv-txt"><h2>{esc(h)}</h2><p>{esc(t)}</p></div>' for h, t in x["body"])
-    body = f"""{inner_hero(x['h1'], x['lead'], x['photo'], [(x['name'], path)])}
-<section class="sv board" aria-label="{esc(x['name'])} details">
-<div class="t sv-list"><h2>{esc(x['list_h'])}</h2><ul>{''.join(f'<li>{esc(i)}</li>' for i in x['items'])}</ul></div>
-{body_tiles}
-<div class="t sv-more"><h2>Other plumbing</h2><ul>{others}<li><a href="/service-areas/">Areas we cover</a></li></ul></div>
-</section>
-<section class="work" aria-labelledby="work-h"><div class="work-top"><h2 id="work-h">Jobs like this</h2><a href="/our-work/">All our work</a></div>
-<div class="wall short" data-gallery>{wall_html([w for w in wall if w[0] != x['photo']][:4])}</div></section>
-{faq_block(x['faq'], heading=x['name'] + ' questions')}
-{quote_strip()}"""
-    body = re.sub(r'class="t (sv|faq|rg|ar)', r'class="t rv \1', body)
+    blocks = "".join(f'<div class="txt rv"><h2>{esc(h)}</h2><p>{esc(t)}</p></div>' for h, t in x["body"])
+    items = "".join(f"<li>{I('check-circle')}<span>{esc(i)}</span></li>" for i in x["items"])
+    others = [o for o in SERVICES if o is not x][:4]
+    photos = [w for w in WALL if w[0] != x["photo"]][:3]
+    body = f"""{inner_hero(hl(x['h1'], phrase='in Melbourne') if 'in Melbourne' in x['h1'] else hl(x['h1']), x['lead'], x['photo'], [(x['name'], path)])}
+<section class="detail light" aria-label="{esc(x['name'])} details"><div class="wrap detail-in">
+<div class="detail-main">{blocks}</div>
+<aside class="detail-side rv"><div class="side-card"><h2>{esc(x['list_h'])}</h2><ul class="ticks">{items}</ul>
+<a class="btn btn-accent btn-block" href="tel:{TEL}">{I('phone')} Call {PH}</a><a class="btn btn-line btn-block" href="#contact">Get a free quote</a></div></aside>
+</div></section>
+<section class="work light-alt" aria-labelledby="jobs-h"><div class="wrap">
+{head('Our work', 'Jobs like <span class="hl">this one</span>', center=True, hid='jobs-h')}
+{gallery(photos, 'gal-3')}
+</div></section>
+<section class="services light" aria-labelledby="more-h"><div class="wrap">
+{head('More services', 'Other plumbing <span class="hl">we do</span>', hid='more-h')}
+<div class="svc-grid svc-grid-4">{svc_cards(others)}</div></div></section>
+{faq_section(x['faq'], title=esc(x['name']) + ' <span class="hl">questions</span>')}
+{cta_band()}
+{contact_section()}"""
     s.page(path, title=x["title"], description=x["desc"], body=body, faq=x["faq"], crumbs=[(x["name"], path)],
            extra_graph=[s.service_node(path, x["h1"], x["desc"])])
 
-# areas page
-areas_body = f"""{inner_hero('Plumber across Melbourne', 'Metrowide means what it says. We plumb homes, builds and businesses right across metropolitan Melbourne, from the inner suburbs to the growth corridors.', 'double', [('Service areas', '/service-areas/')])}
-<!-- CONFIRM WITH CLIENT BEFORE LAUNCH: form said 'All areas'. Regions and suburbs below are a starting list for Dan to correct. -->
-<section class="areas board" aria-labelledby="areas-h">
-<div class="t ar-head"><h2 id="areas-h">Find your suburb</h2>
-<label class="ar-find"><span>Check your suburb</span><input type="search" placeholder="Type your suburb" data-area-filter autocomplete="off"></label>
-<p class="ar-note" data-area-note>These are the suburbs we work in most. If yours is not here, call. We probably still cover it.</p></div>
-{regions_html}
-<div class="t ar-svc"><h2>Plumbing in every area</h2><ul>{''.join(f'<li><a href="/{x["slug"]}/">{x["name"]}</a></li>' for x in SERVICES)}</ul></div>
-</section>
-{quote_strip()}"""
+# ---------------------------------------------------------------- service areas
+areas_body = f"""{inner_hero('Plumber <span class="hl">across Melbourne</span>', 'Metrowide means what it says. We plumb homes, builds and businesses right across metropolitan Melbourne, from the inner suburbs to the growth corridors.', 'double', [('Service areas', '/service-areas/')])}
+{areas_section('areas-h', 'These are the suburbs we work in most. Type yours to check, and if it is not here, call. We probably still cover it.')}
+<section class="services light-alt" aria-labelledby="every-h"><div class="wrap">
+{head('Every area', 'Plumbing services <span class="hl">in every suburb</span>', hid='every-h')}
+<div class="svc-grid">{svc_cards(SERVICES)}</div></div></section>
+{cta_band()}
+{contact_section()}"""
 s.page("/service-areas/", title="Plumber Service Areas Melbourne | Metrowide Plumbing",
        description="Metrowide Plumbing covers metropolitan Melbourne: inner city, north, west, east, south east and bayside suburbs. Emergency, renovation and new build plumbing.",
        body=areas_body, crumbs=[("Service areas", "/service-areas/")])
 
-# work page
-work_body = f"""{inner_hero('Our plumbing work', 'Recent bathrooms and fit-offs from around Melbourne. Tap any photo to see it full size.', 'brassvan', [('Our work', '/our-work/')])}
+# ---------------------------------------------------------------- our work
+work_body = f"""{inner_hero('Our <span class="hl">plumbing work</span>', 'Recent bathrooms and fit-offs from around Melbourne. Tap any photo to see it full size.', 'brassvan', [('Our work', '/our-work/')])}
+<section class="work light" aria-labelledby="all-h"><div class="wrap">
+{head('Recent jobs', 'Every job <span class="hl">on file</span>', 'More photos are on the way as new jobs finish.', center=True, hid='all-h')}
 <!-- CLIENT TO SUPPLY: suburb and year for each job, plus photos of new build, commercial and maintenance work. -->
-<section class="work" aria-labelledby="work-h"><div class="work-top"><h2 id="work-h">Every job on file</h2><a href="#quote">Get a quote</a></div>
-<div class="wall" data-gallery>{wall_html(wall)}</div></section>
-{quote_strip()}"""
+{gallery(WALL)}</div></section>
+{process_section()}
+{cta_band()}
+{contact_section()}"""
 s.page("/our-work/", title="Our Work | Bathroom & Renovation Plumbing Melbourne | Metrowide",
        description="Photos of recent Metrowide Plumbing jobs in Melbourne: terrazzo and finger tile bathrooms, brushed brass and black tapware, showers and vanities.",
        body=work_body, crumbs=[("Our work", "/our-work/")])
 
-# about page
-about_body = f"""{inner_hero('About Metrowide Plumbing', 'Five years of plumbing across residential construction, renovations, maintenance and new builds, with the focus on workmanship, communication and turning up.', 'arch', [('About', '/about/')])}
-<section class="sv board" aria-label="About us">
-<div class="t sv-txt"><h2>How we work</h2><p>We work closely with builders, developers and homeowners so every job is delivered on time, on budget and with attention to detail. Rather than just completing the plumbing, we look after the whole experience, from an accurate quote to keeping you informed at every stage.</p></div>
-<div class="t sv-txt"><h2>Why it matters</h2><p>Jobs rely on trades who turn up when they say they will, communicate before they are chased and finish to a consistently high standard. We know how much a late trade costs a build, so we plan not to be one.</p></div>
-<div class="t sv-txt"><h2>Built to last</h2><p>Our reputation is built on honest advice, quality craftsmanship and dependable service. Whether it is a custom home, a renovation or ongoing maintenance, we take pride in plumbing that lasts.</p></div>
-<div class="t sv-list"><h2>The short version</h2><ul><li>5 years in business</li><li>Residential and commercial</li><li>Emergency and same-day jobs</li><li>Free quotes</li><li>All of Melbourne</li></ul></div>
+# ---------------------------------------------------------------- about
+about_body = f"""{inner_hero('About <span class="hl">Metrowide Plumbing</span>', 'Five years of plumbing across residential construction, renovations, maintenance and new builds, with the focus on workmanship, communication and turning up.', 'arch', [('About', '/about/')])}
+<section class="why light" aria-labelledby="story-h"><div class="wrap why-in">
+<div class="why-media rv">{s.img('green', sizes='(min-width: 900px) 540px, 100vw')}</div>
+<div class="why-copy">{head('Our story', 'Plumbing built on <span class="hl">turning up</span>', hid='story-h')}
+<div class="txt rv"><p>We work closely with builders, developers and homeowners so every job is delivered on time, on budget and with attention to detail. Rather than just completing the plumbing, we look after the whole experience, from an accurate quote to keeping you informed at every stage.</p></div>
+<div class="txt rv"><p>Jobs rely on trades who turn up when they say they will, communicate before they are chased and finish to a consistently high standard. We know how much a late trade costs a build, so we plan not to be one.</p></div>
+<div class="txt rv"><p>Our reputation is built on honest advice, quality craftsmanship and dependable service. Whether it is a custom home, a renovation or ongoing maintenance, we take pride in plumbing that lasts.</p></div>
 <!-- CLIENT TO SUPPLY: VBA registration number, insurance, a photo of Dan and the van. -->
-</section>
-{quote_strip()}"""
+</div></div></section>
+{stat_band()}
+<section class="why dark" aria-labelledby="why-h"><div class="wrap why-in why-flip">
+<div class="why-copy">{head('What you can expect', 'Four things <span class="hl">on every job</span>', hid='why-h')}<ul class="why-list">{why}</ul></div>
+<div class="why-media rv">{s.img('double', sizes='(min-width: 900px) 540px, 100vw')}</div>
+</div></section>
+{cta_band()}
+{contact_section()}"""
 s.page("/about/", title="About Metrowide Plumbing | Melbourne Plumbers",
        description="Metrowide Plumbing has spent five years plumbing Melbourne homes, renovations and new builds, with a focus on workmanship, communication and turning up on time.",
        body=about_body, crumbs=[("About", "/about/")])
 
-# contact page
-contact_body = f"""<section class="ih board" aria-labelledby="h1">
-<div class="t ih-say"><p class="crumbs"><a href="/">Home</a> / <span>Contact</span></p><h1 id="h1">Contact Metrowide Plumbing</h1>
-<p class="lead">Call for anything urgent. For everything else, text, email or send the job below and Dan comes back to you.</p>
-<div class="ih-acts"><a class="btn slant" href="tel:{TEL}">Call {PH}</a><a class="btn2" href="mailto:{d['email']}">{d['email']}</a></div></div>
-<dl class="t ct-facts"><div><dt>Phone</dt><dd><a href="tel:{TEL}">{PH}</a></dd></div><div><dt>Email</dt><dd><a href="mailto:{d['email']}">{d['email']}</a></dd></div>
-<div><dt>Area</dt><dd>All of Melbourne</dd></div><div><dt>Hours</dt><dd>Emergency and same-day jobs taken<!-- CLIENT TO CONFIRM: business hours --></dd></div></dl>
-</section>
-<section class="job board" id="job" aria-labelledby="job-h">
-<div class="t job-head"><h2 id="job-h">Send Dan the job</h2><p>Pick the job and how soon, add your suburb, and send it as a text or a message.</p></div>
-<div class="t job-form">{composer('Contact Page Enquiry')}</div>
-</section>"""
+# ---------------------------------------------------------------- contact
+contact_body = f"""{inner_hero('Contact <span class="hl">Metrowide Plumbing</span>', 'Call for anything urgent. For everything else, send the job below and Dan comes back to you with a time and a price.', 'brassshower', [('Contact', '/contact/')])}
+{contact_section()}
+{faq_section(home_faq)}"""
 s.page("/contact/", title="Contact Metrowide Plumbing | Call 0423 017 489",
        description="Call Metrowide Plumbing on 0423 017 489 for emergency and same-day plumbing in Melbourne, or send the job for a free quote.",
-       body=contact_body, crumbs=[("Contact", "/contact/")])
+       body=contact_body, faq=home_faq, crumbs=[("Contact", "/contact/")])
 
+# ---------------------------------------------------------------- 404
 s.page("/404/", title="Page not found | Metrowide Plumbing", description="That page is not here. Call Metrowide Plumbing on 0423 017 489 or head back to the home page.",
-       body=f"""<section class="ih board"><div class="t ih-say"><h1>That page is not here</h1><p class="lead">The link may be old. Head home, or if water is going where it should not, call now.</p>
-<div class="ih-acts"><a class="btn slant" href="tel:{TEL}">Call {PH}</a><a class="btn2" href="/">Home page</a></div></div>
-<div class="t sv-more"><h2>Popular pages</h2><ul>{''.join(f'<li><a href="{u}">{n}</a></li>' for n, u in NAV)}</ul></div></section>""")
+       body=f"""{inner_hero('That page <span class="hl">is not here</span>', 'The link may be old. Head home, or if water is going where it should not, call now.', 'under', [('Page not found', '/404/')])}
+<section class="services light" aria-labelledby="pop-h"><div class="wrap">{head('Popular pages', 'Where to <span class="hl">next</span>', hid='pop-h')}
+<div class="svc-grid">{svc_cards(SERVICES)}</div></div></section>
+{contact_section()}""")
 
-# ---------------------------------------------------------------- share card and favicons
-s.og_image("green", focus=(50, 50), mark=logo, headline="Melbourne plumbing that\nturns up when it says it will",
+# ---------------------------------------------------------------- share card, favicons, notes
+s.og_image("green", focus=(50, 50), mark=logo, headline="MELBOURNE PLUMBERS WHO\nTURN UP WHEN THEY SAY",
            line2="Emergency / Renovations / New builds / Commercial", small=f"Call Dan  {PH}",
-           font_bold=s.ttf("libre-franklin-latin-900-italic.woff2"), font_text=s.ttf("source-serif-4-latin-600-normal.woff2")
-           if (s.assets / "fonts" / "source-serif-4-latin-600-normal.woff2").exists() else s.ttf("source-serif-4-latin-400-normal.woff2"),
-           ink="#f4f4f2", accent="#46a0d2", scrim=(15, 15, 15))
-s.favicons("""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M14 6h46L50 58H4z" fill="#181818"/>
-<path d="M22 16h30l-6 32H16z" fill="#46a0d2"/></svg>""")
-s.notes(**{'direction': "The well-kept board (taste-skill dense-tiles), dark board, tiles on 8px gaps, action tiles cut on the logo's slant", 'idea': "The slanted black band of the Metrowide logo, with its blue marker square, becomes the board; the name runs wider than its band the way 'metro wide' covers more than one suburb", 'live': "'Tell Dan what is going on': three taps (job, how soon, suburb) write the message, sent as an SMS or a Web3Forms enquiry", 'type_': 'Libre Franklin 700/800/900 + 900 italic (display), Source Serif 4 400/600 (text), self-hosted', 'palette': 'Logo black #181818 and blue #46a0d2 on a #0f0f0f board, paper #f4f4f2, blue tints for the process accordion', 'redraws': ['work: book-spine index needs 20 to 40 project names, Metrowide has 7 photos, so giant title and uneven wall', 'about: team portraits do not exist, so wide photo, colour tile and facts'], 'decisions': ["No video: house rule is client photos only and no honest clip of Metrowide's work exists", 'Inspector covered-text at 390px is the fixed mobile call bar passing over one statement tile']})
+           font_bold=s.ttf("barlow-condensed-latin-800-normal.woff2"), font_text=s.ttf("dm-sans-latin-500-normal.woff2"),
+           ink="#ffffff", accent="#46a0d2", scrim=(12, 14, 17))
+s.favicons("""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#121417"/>
+<path d="M18 14h36l-8 36H10z" fill="#46a0d2"/></svg>""")
+s.notes(direction="Go Polar house style (rebuilt 18 Nov 2026 after Chris rejected the first, experimental build)",
+        idea="Dark photo hero with quote form, logo blue accent on near black and white, condensed uppercase headings",
+        live="Hero quote form, suburb checker, count-up stat band, gallery lightbox, FAQ accordion",
+        type_="Barlow Condensed 600/700/800 (headings), DM Sans 400/500/700 (body), self-hosted",
+        palette="Logo blue #46a0d2 accent (deep #1d6fa5 on light), near black #0d0f12 and #15181d, white and #f4f6f8",
+        decisions=["Benchmarks: Bernard Electrics, Spray Pave, Turquoise, Moral Service, Quick Micks",
+                   "No reviews section and no star rating: none supplied"])
 s.finish()

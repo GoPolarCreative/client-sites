@@ -168,6 +168,18 @@ class Site:
 <p class="gp-status" data-status role="status" aria-live="polite">{note}</p>
 </form>"""
 
+    # ------------------------------------------------------------------ live Google reviews
+    def has_google_reviews(self):
+        gr = self.d.get("google_reviews") or {}
+        return bool(gr.get("place_id") or gr.get("query"))
+
+    def reviews_mount(self, cls="", btn1="", btn2=""):
+        """Empty mount the kit runtime fills from /api/reviews when it scrolls near. The section that
+        wraps it should carry data-gr-section so it stays collapsed until reviews arrive, and is never
+        shown at all when the client has no Google reviews yet."""
+        maps = (self.d.get("google_reviews") or {}).get("maps_url", "")
+        return f'<div class="gr {cls}" data-gr data-maps="{esc(maps)}" data-btn1="{esc(btn1)}" data-btn2="{esc(btn2)}"></div>'
+
     # ------------------------------------------------------------------ FAQ (markup and schema from one list)
     @staticmethod
     def faq_html(items, group="faq", cls="", q_tag=""):
@@ -452,6 +464,17 @@ class Site:
                  "headers": [{"key": "X-Robots-Tag", "value": "noindex"}]},
             ],
         }
+        gr = self.d.get("google_reviews") or {}
+        api = self.out / "api" / "reviews.js"
+        if gr.get("place_id") or gr.get("query"):
+            t = (KIT / "reviews_api.js").read_text()
+            for k, v in (("__PLACE_ID__", gr.get("place_id", "")), ("__QUERY__", gr.get("query", "")), ("__NAME__", self.name)):
+                t = t.replace(k, json.dumps(v)[1:-1])
+            api.parent.mkdir(exist_ok=True)
+            api.write_text(t)
+            vercel["headers"].append({"source": "/api/(.*)", "headers": [{"key": "Cache-Control", "value": "no-store"}]})
+        elif api.exists():
+            api.unlink()
         (self.out / "vercel.json").write_text(json.dumps(vercel, indent=2) + "\n")
         nf = self.out / "404" / "index.html"
         if nf.exists():

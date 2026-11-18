@@ -81,10 +81,16 @@
     "Client chose to host elsewhere ('I'll set myself up and pay for hosting elsewhere'). Preview is on Vercel; confirm hosting before going live.",
     "All seven job photos are bathrooms. No photos of new build rough-ins, commercial work or maintenance callouts, so those pages reuse bathroom photos. CLIENT TO SUPPLY site photos.",
     "Logo arrived as a phone screenshot of the artwork. Cropped and made transparent; it holds up at header size but a vector original would be better.",
-    "Photo bath-laundry-combo had a screen scrollbar on its right edge; trimmed 44px."
+    "Photo bath-laundry-combo had a screen scrollbar on its right edge; trimmed 44px.",
+    "Google reviews section is wired to the live Google Places API but stays hidden until Metrowide has a Google Business Profile with reviews. It finds the profile by name for now; CLIENT TO SUPPLY the Google Business Profile link so the exact place ID can be set (cheaper and cannot pick up the wrong business)."
   ],
   "autoreply": {
     "enabled": false,
     "on_job": "on the tools"
+  },
+  "google_reviews": {
+    "place_id": "",
+    "query": "Metrowide Plumbing Melbourne",
+    "maps_url": ""
   }
 }

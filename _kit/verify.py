@@ -171,10 +171,11 @@ else:
                 name = path.strip("/").replace("/", "_") or "home"
                 pg = ctx.new_page()
                 errs = []
-                pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
+                # /api/ routes are Vercel functions; the local server cannot run them, so ignore their 404s.
+                pg.on("console", lambda m: errs.append(m.text) if m.type == "error" and "/api/" not in (m.location or {}).get("url", "") else None)
                 pg.on("pageerror", lambda e: errs.append(str(e)))
                 pg.on("requestfailed", lambda r: errs.append("request failed " + r.url) if "web3forms" not in r.url else None)
-                pg.on("response", lambda r: errs.append(f"{r.status} {r.url}") if r.status >= 400 and r.url.startswith(base) else None)
+                pg.on("response", lambda r: errs.append(f"{r.status} {r.url}") if r.status >= 400 and r.url.startswith(base) and "/api/" not in r.url else None)
                 pg.goto(base + path, wait_until="networkidle")
                 first = pg.evaluate(PROBE)
                 if not first["telFirstScreen"] and not path.startswith("/404"):

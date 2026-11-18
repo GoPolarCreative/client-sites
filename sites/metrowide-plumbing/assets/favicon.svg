@@ -1,2 +1,2 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M14 6h46L50 58H4z" fill="#181818"/>
-<path d="M22 16h30l-6 32H16z" fill="#46a0d2"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#121417"/>
+<path d="M18 14h36l-8 36H10z" fill="#46a0d2"/></svg>

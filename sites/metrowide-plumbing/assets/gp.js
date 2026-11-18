@@ -113,6 +113,70 @@
     });
   });
 
+  /* Live Google reviews. The section ([data-gr-section]) stays hidden until /api/reviews returns
+     reviews, so a client with no Google reviews yet simply has no section. Fetched only when a visitor
+     scrolls near it: Google bills per call and its terms forbid caching review text. */
+  d.querySelectorAll('[data-gr]').forEach(function (mount) {
+    var sec = mount.closest('[data-gr-section]') || mount;
+    var star = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>';
+    var stars = function (n) {
+      var row = new Array(6).join(star), pct = Math.max(0, Math.min(5, n || 0)) / 5 * 100;
+      return '<span class="gr-stars" role="img" aria-label="' + (Math.round((n || 0) * 10) / 10) + ' out of 5 stars">' +
+        '<span class="gr-stars-base">' + row + '</span><span class="gr-stars-fill" style="width:' + pct + '%">' + row + '</span></span>';
+    };
+    var esc = function (t) { var e = d.createElement('div'); e.textContent = t == null ? '' : String(t); return e.innerHTML; };
+    var b1 = mount.getAttribute('data-btn1') || 'gr-btn', b2 = mount.getAttribute('data-btn2') || 'gr-btn';
+    var render = function (j) {
+      var cards = j.reviews.map(function (r) {
+        var name = esc(r.author || 'Google user');
+        var who = r.authorUrl ? '<a class="gr-name" href="' + esc(r.authorUrl) + '" target="_blank" rel="noopener">' + name + '</a>' : '<span class="gr-name">' + name + '</span>';
+        var av = r.photo ? '<img class="gr-av" src="' + esc(r.photo) + '" alt="" width="44" height="44" loading="lazy" referrerpolicy="no-referrer">' :
+          '<span class="gr-av gr-av-i" aria-hidden="true">' + name.charAt(0) + '</span>';
+        return '<article class="gr-card" role="listitem"><div class="gr-head">' + av + '<div class="gr-who">' + who +
+          '<span class="gr-when">' + esc(r.when || '') + '</span></div></div>' + stars(r.rating) +
+          '<p class="gr-text">' + esc(r.text) + '</p><button class="gr-more" type="button" hidden>Read more</button></article>';
+      }).join('');
+      var count = j.count ? 'from ' + j.count + ' Google review' + (j.count === 1 ? '' : 's') : 'on Google';
+      mount.innerHTML =
+        '<div class="gr-summary"><div class="gr-score"><span class="gr-num">' + (j.rating ? j.rating.toFixed(1) : '') + '</span>' +
+        '<div>' + stars(j.rating) + '<p class="gr-count">' + count + '</p></div></div><div class="gr-actions">' +
+        (j.url ? '<a class="' + b1 + '" href="' + esc(j.url) + '" target="_blank" rel="noopener">Read all on Google</a>' : '') +
+        (j.writeUrl ? '<a class="' + b2 + '" href="' + esc(j.writeUrl) + '" target="_blank" rel="noopener">Leave a review</a>' : '') +
+        '</div></div><div class="gr-track" role="list" tabindex="0" aria-label="Google reviews">' + cards + '</div>' +
+        '<div class="gr-foot"><p class="gr-attr">Most relevant reviews, from Google Maps</p>' +
+        '<div class="gr-nav"><button class="gr-prev" type="button" aria-label="Previous reviews"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button>' +
+        '<button class="gr-next" type="button" aria-label="Next reviews"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button></div></div>';
+      sec.classList.add('gr-ready');
+      var track = mount.querySelector('.gr-track');
+      var by = function (dir) { var c = track.querySelector('.gr-card'); track.scrollBy({ left: dir * (c ? c.offsetWidth + 16 : 320), behavior: reduce ? 'auto' : 'smooth' }); };
+      mount.querySelector('.gr-prev').onclick = function () { by(-1); };
+      mount.querySelector('.gr-next').onclick = function () { by(1); };
+      mount.querySelectorAll('.gr-card').forEach(function (c) {
+        var t = c.querySelector('.gr-text'), m = c.querySelector('.gr-more');
+        if (t.scrollHeight > t.clientHeight + 4) {
+          m.hidden = false;
+          m.onclick = function () { var o = c.classList.toggle('open'); m.textContent = o ? 'Show less' : 'Read more'; };
+        }
+      });
+    };
+    var load = function () {
+      fetch(mount.getAttribute('data-src') || '/api/reviews', { headers: { Accept: 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j && j.reviews && j.reviews.length) render(j); })
+        .catch(function () {});
+    };
+    if (window.__grDemo) { render(window.__grDemo); return; }
+    if (!('IntersectionObserver' in window)) { load(); return; }
+    var s = d.createElement('div');
+    s.style.height = '1px';
+    s.setAttribute('aria-hidden', 'true');
+    sec.parentNode.insertBefore(s, sec);
+    var io2 = new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting) { io2.disconnect(); load(); }
+    }, { rootMargin: '900px 0px' });
+    io2.observe(s);
+  });
+
   /* Count calls in GA4 when it is installed */
   d.addEventListener('click', function (e) {
     var a = e.target.closest('a[href^="tel:"]');

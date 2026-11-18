@@ -8,15 +8,13 @@
 
 ## Design
 
-- Direction: The well-kept board (taste-skill dense-tiles), dark board, tiles on 8px gaps, action tiles cut on the logo's slant
-- Idea: The slanted black band of the Metrowide logo, with its blue marker square, becomes the board; the name runs wider than its band the way 'metro wide' covers more than one suburb
-- Live thing: 'Tell Dan what is going on': three taps (job, how soon, suburb) write the message, sent as an SMS or a Web3Forms enquiry
-- Type: Libre Franklin 700/800/900 + 900 italic (display), Source Serif 4 400/600 (text), self-hosted
-- Palette: Logo black #181818 and blue #46a0d2 on a #0f0f0f board, paper #f4f4f2, blue tints for the process accordion
-- Redraw: work: book-spine index needs 20 to 40 project names, Metrowide has 7 photos, so giant title and uneven wall
-- Redraw: about: team portraits do not exist, so wide photo, colour tile and facts
-- Decision: No video: house rule is client photos only and no honest clip of Metrowide's work exists
-- Decision: Inspector covered-text at 390px is the fixed mobile call bar passing over one statement tile
+- Direction: Go Polar house style (rebuilt 18 Nov 2026 after Chris rejected the first, experimental build)
+- Idea: Dark photo hero with quote form, logo blue accent on near black and white, condensed uppercase headings
+- Live thing: Hero quote form, suburb checker, count-up stat band, gallery lightbox, FAQ accordion
+- Type: Barlow Condensed 600/700/800 (headings), DM Sans 400/500/700 (body), self-hosted
+- Palette: Logo blue #46a0d2 accent (deep #1d6fa5 on light), near black #0d0f12 and #15181d, white and #f4f6f8
+- Decision: Benchmarks: Bernard Electrics, Spray Pave, Turquoise, Moral Service, Quick Micks
+- Decision: No reviews section and no star rating: none supplied
 
 ## Pages
 
@@ -53,6 +51,7 @@
 - [ ] All seven job photos are bathrooms. No photos of new build rough-ins, commercial work or maintenance callouts, so those pages reuse bathroom photos. CLIENT TO SUPPLY site photos.
 - [ ] Logo arrived as a phone screenshot of the artwork. Cropped and made transparent; it holds up at header size but a vector original would be better.
 - [ ] Photo bath-laundry-combo had a screen scrollbar on its right edge; trimmed 44px.
+- [ ] Google reviews section is wired to the live Google Places API but stays hidden until Metrowide has a Google Business Profile with reviews. It finds the profile by name for now; CLIENT TO SUPPLY the Google Business Profile link so the exact place ID can be set (cheaper and cannot pick up the wrong business).
 
 ## Editing
 
