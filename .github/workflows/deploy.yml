@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      # Server key for live Google reviews (Places API (New) only). Passed to each site's /api/reviews function.
+      GOOGLE_PLACES_KEY: ${{ secrets.GOOGLE_PLACES_KEY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,7 +66,9 @@ jobs:
             cd "$OUT"
             # Links to the Vercel project named after the folder, creating it on first deploy
             vercel link --yes --project "$SITE" --token "$VERCEL_TOKEN"
-            URL=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN")
+            ENVARGS=""
+            if [ -n "$GOOGLE_PLACES_KEY" ] && [ -f api/reviews.js ]; then ENVARGS="--env GOOGLE_PLACES_KEY=$GOOGLE_PLACES_KEY"; fi
+            URL=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN" $ENVARGS)
             echo "$SITE: $URL"
             echo "- **$SITE**: $URL" >> "$GITHUB_STEP_SUMMARY"
             cd "$GITHUB_WORKSPACE"
