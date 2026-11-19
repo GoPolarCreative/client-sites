@@ -62,3 +62,6 @@ python3 sites/metrowide-plumbing/_src/build.py && python3 _kit/verify.py sites/m
 ```
 
 Commit and push to main; the workflow redeploys only this folder.
+
+## Edits
+- 2026-11-19: redeployed with the GOOGLE_PLACES_KEY secret so live Google reviews can load (section stays hidden until Metrowide has Google reviews).
